@@ -201,8 +201,8 @@ def main():
     args = parser.parse_args()
 
 
-    FeaturesFileNames = ['./data/features_datasets/BTCUSD_features.csv','./data/features_datasets/ETHUSD_features.csv']
-    FileNames = ['./data/daily_datasets/BTCUSD.csv', './data/daily_datasets/ETHUSD.csv']
+    FeaturesFileNames = ['./data/features_datasets/BTCUSD_features.csv','./data/features_datasets/ETHUSD_features.csv','./data/features_datasets/LTCUSD_features.csv']
+    FileNames = ['./data/daily_datasets/BTCUSD.csv', './data/daily_datasets/ETHUSD.csv', './data/daily_datasets/LTCUSD.csv']
 
     #dataset preparation
     crypto = get_cryptocurrency(args.cryptocurrency)

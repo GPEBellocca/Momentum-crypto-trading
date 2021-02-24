@@ -152,7 +152,7 @@ def clean_new_data(df):
 
 if __name__ == "__main__":
     # we set which pair we want to retrieve data for
-    pairs = {'BTCUSD': 'BTC/USD', 'ETHUSD': 'ETH/USD'}
+    pairs = {'BTCUSD': 'BTC/USD', 'ETHUSD': 'ETH/USD', 'LTCUSD': 'LTC/USD'}
     for key in pairs.keys():
         # full timeframe intervals found here: https://www.kraken.com/en-us/features/api#get-ohlc-data
         #fetch_OHLC_data(symbol=pair, timeframe='1') # fetches minute data
