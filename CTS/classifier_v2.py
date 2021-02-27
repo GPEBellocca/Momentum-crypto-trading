@@ -193,24 +193,20 @@ def get_cryptocurrency(cryptocurrency):
 
 
 
-def main():
-    parser = argparse.ArgumentParser(description="AAA")
-    parser.add_argument("cryptocurrency", type=Cryptocurrency,choices=list(Cryptocurrency))
-    parser.add_argument("classifier", type=Classifier, choices=list(Classifier))
-    parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
-    args = parser.parse_args()
+def classification_job(cryptocurrency, classifier, label):
+    
 
-
+    print("SIMULATION ON:",cryptocurrency,classifier,label)
+    
     FeaturesFileNames = ['./data/features_datasets/BTCUSD_features.csv','./data/features_datasets/ETHUSD_features.csv','./data/features_datasets/LTCUSD_features.csv']
     FileNames = ['./data/daily_datasets/BTCUSD.csv', './data/daily_datasets/ETHUSD.csv', './data/daily_datasets/LTCUSD.csv']
 
     #dataset preparation
-    crypto = get_cryptocurrency(args.cryptocurrency)
-    
-    
-    if args.labels == 2:
+    crypto = get_cryptocurrency(cryptocurrency)
+
+    if label == 2:
         labels = get_y_2(FileNames[crypto])
-    elif args.labels == 3:
+    elif label == 3:
         labels = get_y_3(FileNames[crypto])
     y = pd.DataFrame()
     y["Labels"] = labels
@@ -232,15 +228,12 @@ def main():
     print("Train period: " + str(X_train.iloc[0,0]) + "  -  " + str(X_train.iloc[X_train.shape[0]-1,0]) + "  Number of observations: " +  str(X_train.shape[0]))
     print("Test period:  " + str(X_test.iloc[0,0]) + "  -  " + str(X_test.iloc[X_test.shape[0]-1,0]) + "  Number of observations: " +  str(X_test.shape[0]))
 
-    dates = pd.DataFrame()
-    dates['Date'] = X_test['Date']
-    reversed_dates = dates
     del X_train['Date']
     del X_test['Date']
 
 
     # training, validation and test
-    clf, param_grid = get_classifier_and_grid(args.classifier)
+    clf, param_grid = get_classifier_and_grid(classifier)
     pipeline = Pipeline([('scaler', StandardScaler()), ('clf', clf)])
     param_grid = {f"clf__{k}": v for k, v in param_grid.items()}
     gs = GridSearchCV(pipeline,param_grid=param_grid,scoring="f1_weighted",n_jobs=-1,cv=TimeSeriesSplit(n_splits=5))
@@ -249,7 +242,7 @@ def main():
     estimator = gs.best_estimator_
 
 
-    print("SIMULATION ON:",args.cryptocurrency,args.classifier,args.labels)
+
     print("Best setup from validation:",estimator)
     acc = accuracy_score(Y_test, y_pred)
     print("Weighted accuracy:",acc)
@@ -261,19 +254,27 @@ def main():
 
 
     result = pd.DataFrame()
-    result['Date'] = reversed_dates['Date']
     result['Real'] = Y_test
     result['Forecast'] = y_pred
 
 
     result = compute_correctness(result)
     path = './data/labels_datasets/'
-    path=path+str(args.cryptocurrency)+"_"+"labels"+"_"+str(args.classifier)+"_"+str(args.labels)+'.csv'
-    #result.to_excel(path, index = False)
-    result.to_csv(path, index = False)
+    path=path+str(cryptocurrency)+"_"+"labels"+"_"+str(classifier)+"_"+str(label)+'.xlsx'
+    result.to_excel(path, index = False)
 
 
     return
+
+def main():
+    cryptos = [Cryptocurrency.BTC, Cryptocurrency.ETH, Cryptocurrency.LTC]
+    classfiers = [Classifier.RFC, Classifier.KNN, Classifier.SVC, Classifier.LG, Classifier.GNB]
+    labels = [3,2]
+
+    for crypto in  cryptos:
+        for classifier in classfiers:
+            for label in labels:
+                classification_job(crypto, classifier, label)
 
 if __name__ == "__main__":
     main()
