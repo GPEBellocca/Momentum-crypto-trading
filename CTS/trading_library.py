@@ -18,6 +18,52 @@ def readFiles(fileName):
     dfres = pd.read_csv(fileName)
     return dfres
 
+#crete minute dataset
+def createMinuteDataset(df, start_date, end_date):
+    returns = []
+    open = []
+    close = []
+    date = []
+    hours = []
+    minutes = []
+    
+    start = 0
+    end = 0
+    counter = 0
+    
+    for i in range(0,df.shape[0]):
+        tmp = str(df.iloc[i,1]).split(" ")
+        if end == 1:
+            if end_date != tmp[0]:
+                break
+        if end == 0:
+            if end_date == tmp[0]:
+                end = 1
+        if start == 0:
+            if start_date == tmp[0]:
+                start = 1
+        if start == 1:
+            x = str(df.iloc[i,1]).split(" ")
+            date.append(x[0])
+            y = str(x[1]).split(':')
+            hours.append(int(y[0]))
+            minutes.append(int(y[1]))
+            #returns.append((df.iloc[i,6]/df.iloc[i,3])-1)
+            close.append(df.iloc[i,6])
+            open.append(df.iloc[i,3])
+            counter = counter + 1
+        
+        if counter == 366 * 24 * 60:
+            break
+    
+    dfres = pd.DataFrame()
+    dfres['Day'] = date
+    dfres['Hour'] = hours
+    dfres['Minute'] = minutes
+    dfres['Open'] = open
+    dfres['Close'] = close
+    return dfres
+
 
 #crete hourly dataset
 def createHourlyDataset(df, start_date):
@@ -77,8 +123,8 @@ def computeStartingDay(df):
     return day
 
 
-#Heuristic strategy - open positions on overreaction day checking only thresholds
-def heuristic_trading(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition):
+#Heuristic strategy h
+def heuristic_trading_h(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition):
     
     parameters = []
     dayCounter = 0
@@ -125,8 +171,57 @@ def heuristic_trading(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPositio
 
     return
 
-#ML strategy with 3 labels - open positions on overreaction day checking thresholds and labels
-def classifier3_trading(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels):
+#Heuristic strategy m
+def he_trading_m(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition):
+    
+    parameters = []
+    dayCounter = 0
+    dayOpenPrice = 0
+    cumulatedReturn = 0
+    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
+    openPrice = 0
+    openHour = 0
+    
+    
+    for i in range(dfMinute.shape[0]-1,-1,-1):
+        
+        
+        if(dfMinute.iloc[i,1] == 0 and dfMinute.iloc[i,2] == 0):
+            # new day - update parameters and take dayOpenPrice
+            parameters = computeTradingParameters(dfDailyReturn,k,dayCounter)
+            dayCounter = dayCounter + 1
+            dayOpenPrice = dfMinute.iloc[i,3]
+            firstReturn = dfMinute.iloc[i,4]/dayOpenPrice
+        
+        
+        cumulatedReturn = (dfMinute.iloc[i,4]/dayOpenPrice)-1
+        
+        
+        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 ):
+            #open long position if there isn't another position opened
+            positionFlag = 1
+            openPrice = dayOpenPrice * (1+ parameters[4])
+            openHour = dfMinute.iloc[i,1]
+        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 ):
+            #open short position if there isn't another position opened
+            positionFlag = -1
+            openPrice = dayOpenPrice * (1 + parameters[5])
+            openHour = dfMinute.iloc[i,1]
+        
+        
+        if(dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59  and positionFlag != 0):
+            #close the overreaction day position
+            closePrice = dfMinute.iloc[i,4]
+            positionReturn = (closePrice/openPrice)-1
+            tradingReturn.append(positionReturn)
+            typeOfPosition.append(positionFlag)
+            positionFlag = 0
+
+    return
+
+
+#HE + ML strategy with 3 labels h
+def classifier3_trading_h(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels):
     
     parameters = []
     dayCounter = 0
@@ -171,8 +266,57 @@ def classifier3_trading(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosit
 
     return
 
-#ML strategy with 2 labels - open positions on overreaction day checking thresholds and labels
-def classifier2_trading(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels):
+
+#HE + ML strategy with 3 labels m
+def heml3_trading_m(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels):
+    
+    parameters = []
+    dayCounter = 0
+    dayOpenPrice = 0
+    cumulatedHourlyReturn = 0
+    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
+    openPrice = 0
+    openHour = 0
+    dailyLabel = 0
+    
+    for i in range(dfHourlyReturn.shape[0]-1,-1,-1):
+        
+        if(dfHourlyReturn.iloc[i,1] == 0 and dfHourlyReturn.iloc[i,2] == 0):
+            # new day - update parameters and take dayOpenPrice
+            parameters = computeTradingParameters(dfDailyReturn,k,dayCounter)
+            dailyLabel = getDailyLabel(dfLabels,dayCounter,dfHourlyReturn.iloc[i,0])
+            dayCounter = dayCounter + 1
+            dayOpenPrice = dfHourlyReturn.iloc[i,3]
+            firstReturn = dfHourlyReturn.iloc[i,4]/dayOpenPrice
+        
+        cumulatedHourlyReturn = (dfHourlyReturn.iloc[i,4]/dayOpenPrice)-1
+        
+        if(cumulatedHourlyReturn >= parameters[4]  and positionFlag == 0 and dailyLabel == 1 ):
+            #open long position if there isn't another position opened
+            positionFlag = 1
+            openPrice = dayOpenPrice * (1+ parameters[4])
+            openHour = dfHourlyReturn.iloc[i,1]
+        elif(cumulatedHourlyReturn <= parameters[5] and positionFlag == 0 and dailyLabel == -1):
+            #open short position if there isn't another position opened
+            positionFlag = -1
+            openPrice = dayOpenPrice * (1 + parameters[5])
+            openHour = dfHourlyReturn.iloc[i,1]
+        
+        
+        if(dfHourlyReturn.iloc[i,1] == 23 and dfHourlyReturn.iloc[i,2] == 59 and positionFlag != 0):
+            #close the overreaction day position
+            closePrice = dfHourlyReturn.iloc[i,4]
+            positionReturn = (closePrice/openPrice)-1
+            tradingReturn.append(positionReturn)
+            typeOfPosition.append(positionFlag)
+            positionFlag = 0
+
+    return
+
+
+
+#HE + ML strategy with 2 labels h
+def classifier2_trading_h(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels):
     
     parameters = []
     dayCounter = 0
@@ -217,6 +361,99 @@ def classifier2_trading(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosit
 
     return
 
+#HE + ML strategy with 2 labels m
+def heml2_trading_m(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels):
+    
+    parameters = []
+    dayCounter = 0
+    dayOpenPrice = 0
+    cumulatedHourlyReturn = 0
+    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
+    openPrice = 0
+    openHour = 0
+    dailyLabel = 0
+    
+    for i in range(dfHourlyReturn.shape[0]-1,-1,-1):
+        
+        if(dfHourlyReturn.iloc[i,1] == 0 and dfHourlyReturn.iloc[i,2] == 0):
+            # new day - update parameters and take dayOpenPrice
+            parameters = computeTradingParameters(dfDailyReturn,k,dayCounter)
+            dailyLabel = getDailyLabel(dfLabels,dayCounter,dfHourlyReturn.iloc[i,0])
+            dayCounter = dayCounter + 1
+            dayOpenPrice = dfHourlyReturn.iloc[i,3]
+            firstReturn = dfHourlyReturn.iloc[i,4]/dayOpenPrice
+        
+        cumulatedHourlyReturn = (dfHourlyReturn.iloc[i,4]/dayOpenPrice)-1
+        
+        if(cumulatedHourlyReturn >= parameters[4]  and positionFlag == 0 and dailyLabel != 0 ):
+            #open long position if there isn't another position opened
+            positionFlag = 1
+            openPrice = dayOpenPrice * (1+ parameters[4])
+            openHour = dfHourlyReturn.iloc[i,1]
+        elif(cumulatedHourlyReturn <= parameters[5] and positionFlag == 0 and dailyLabel != 0):
+            #open short position if there isn't another position opened
+            positionFlag = -1
+            openPrice = dayOpenPrice * (1 + parameters[5])
+            openHour = dfHourlyReturn.iloc[i,1]
+        
+        
+        if(dfHourlyReturn.iloc[i,1] == 23 and dfHourlyReturn.iloc[i,2] == 59 and positionFlag != 0):
+            #close the overreaction day position
+            closePrice = dfHourlyReturn.iloc[i,4]
+            positionReturn = (closePrice/openPrice)-1
+            tradingReturn.append(positionReturn)
+            typeOfPosition.append(positionFlag)
+            positionFlag = 0
+
+    return
+
+#ML strategy with 3 labels m
+def ml3_trading_m(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels):
+    
+    parameters = []
+    dayCounter = 0
+    dayOpenPrice = 0
+    cumulatedHourlyReturn = 0
+    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
+    openPrice = 0
+    openHour = 0
+    dailyLabel = 0
+    
+    for i in range(dfHourlyReturn.shape[0]-1,-1,-1):
+        
+        if(dfHourlyReturn.iloc[i,1] == 0 and dfHourlyReturn.iloc[i,2] == 0):
+            # new day - update parameters and take dayOpenPrice
+            parameters = computeTradingParameters(dfDailyReturn,k,dayCounter)
+            dailyLabel = getDailyLabel(dfLabels,dayCounter,dfHourlyReturn.iloc[i,0])
+            dayCounter = dayCounter + 1
+            dayOpenPrice = dfHourlyReturn.iloc[i,3]
+            firstReturn = dfHourlyReturn.iloc[i,4]/dayOpenPrice
+        
+        cumulatedHourlyReturn = (dfHourlyReturn.iloc[i,4]/dayOpenPrice)-1
+        
+        if(positionFlag == 0 and dailyLabel == 1 ):
+            #open long position if there isn't another position opened
+            positionFlag = 1
+            openPrice = dayOpenPrice * (1+ parameters[4])
+            openHour = dfHourlyReturn.iloc[i,1]
+        elif(positionFlag == 0 and dailyLabel == -1):
+            #open short position if there isn't another position opened
+            positionFlag = -1
+            openPrice = dayOpenPrice * (1 + parameters[5])
+            openHour = dfHourlyReturn.iloc[i,1]
+        
+        
+        if(dfHourlyReturn.iloc[i,1] == 23 and dfHourlyReturn.iloc[i,2] == 59 and positionFlag != 0):
+            #close the overreaction day position
+            closePrice = dfHourlyReturn.iloc[i,4]
+            positionReturn = (closePrice/openPrice)-1
+            tradingReturn.append(positionReturn)
+            typeOfPosition.append(positionFlag)
+            positionFlag = 0
+
+    return
+
+""" -------------------------------------------------------------------------------------------------------------------------------- """
 
 def computeTradingParameters(dfDailyReturn,k, dayCounter):
     parameters = [0.0,0.0,0.0,0.0,0.0,0.0]
@@ -322,7 +559,22 @@ def computeTotalTradingReturn2(totalTradingReturn,tradingReturn,typeOfPosition,p
 
 
 
-def getDailyLabel(dfLabels,dayCounter):
-    return dfLabels.iloc[dayCounter,2]
+def getDailyLabel(dfLabels,dayCounter, date):
+    found = 0
+    for i in range(0,dfLabels.shape[0]):
+        if dfLabels.iloc[i,0] == date:
+            found = 1
+            res = dfLabels.iloc[dayCounter,2]
+            break
+    if found == 0:
+        print("Not found")
+        res = 0
+    return res
+
+
+
+
+    
+
 
 
