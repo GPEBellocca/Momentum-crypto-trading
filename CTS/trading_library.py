@@ -419,12 +419,21 @@ def ml3_trading_m(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,df
     openHour = 0
     dailyLabel = 0
     
+    pos_counter = 0
+    neg_counter = 0
+    
     for i in range(dfHourlyReturn.shape[0]-1,-1,-1):
+        
+        current_day = dfHourlyReturn.iloc[i,0]
         
         if(dfHourlyReturn.iloc[i,1] == 0 and dfHourlyReturn.iloc[i,2] == 0):
             # new day - update parameters and take dayOpenPrice
             parameters = computeTradingParameters(dfDailyReturn,k,dayCounter)
             dailyLabel = getDailyLabel(dfLabels,dayCounter,dfHourlyReturn.iloc[i,0])
+            if dailyLabel == 1:
+                pos_counter = pos_counter + 1
+            elif dailyLabel == -1:
+                neg_counter = neg_counter + 1
             dayCounter = dayCounter + 1
             dayOpenPrice = dfHourlyReturn.iloc[i,3]
             firstReturn = dfHourlyReturn.iloc[i,4]/dayOpenPrice
@@ -451,7 +460,12 @@ def ml3_trading_m(dfHourlyReturn,dfDailyReturn,k,tradingReturn,typeOfPosition,df
             typeOfPosition.append(positionFlag)
             positionFlag = 0
 
+    print("Pos counter:", pos_counter)
+    print("Neg counter:", neg_counter)
+
+
     return
+
 
 """ -------------------------------------------------------------------------------------------------------------------------------- """
 

@@ -35,8 +35,12 @@ def compute_trading_statistics(tradingReturn,typeOfPosition,crypto):
 
     print("Succesfull trades: ",success,"Percentage on total: ",(success/len(profitOrLoss))*100,"%\n")
 
-class Strategy(BaseEnum):
+class HEStrategy(BaseEnum):
     HE = "HE"
+    NA = "NA"
+
+
+class MLStrategy(BaseEnum):
     L3 = "L3"
     MLP = "MLP"
     RFC = "RFC"
@@ -45,11 +49,13 @@ class Strategy(BaseEnum):
     MNB = "MNB"
     GNB = "GNB"
     LG = "LG"
+    NA = "NA"
 
 def main():
     parser = argparse.ArgumentParser(description="AAA")
     parser.add_argument("cryptocurrency", type=Cryptocurrency,choices=list(Cryptocurrency))
-    parser.add_argument("strategy", type=Strategy, choices=list(Strategy))
+    parser.add_argument("hestrategy", type=HEStrategy, choices=list(HEStrategy))
+    parser.add_argument("mlstrategy", type=MLStrategy, choices=list(MLStrategy))
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
     parser.add_argument("granularity", type=str, help="Granularity level (m or h)")
     args = parser.parse_args()
@@ -73,29 +79,29 @@ def main():
 
     tradingReturn = []
     typeOfPosition = []
-    k = 0
+    k = 0.5
 
     if args.granularity == "h":
-        if args.strategy == Strategy.HE:
-            tl.heuristic_trading_h(dfHourly,dfDaily,k,tradingReturn,typeOfPosition)
-        else:
-            dfLabels = tl.readFiles("./data/labels_datasets/"+str(args.cryptocurrency)+"_labels_"+str(args.strategy)+"_"+str(args.labels)+".csv")
-            if args.labels == 3:
-                tl.classifier3_trading_h(dfHourly,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
-            else:
-                tl.classifier2_trading_h(dfHourly,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
+        print("Hourly backtest not available")
+        return
     else:
-        if args.strategy == Strategy.HE:
-            tl.heuristic_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition)
-        else:
-            dfLabels = tl.readFiles("./data/labels_datasets/"+str(args.cryptocurrency)+"_labels_"+str(args.strategy)+"_"+str(args.labels)+".csv")
-            if args.labels == 3:
-                tl.classifier3_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
-            else:
-                tl.classifier2_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
-                          
-    compute_trading_statistics(tradingReturn,typeOfPosition,args.cryptocurrency)
+        if args.hestrategy != HEStrategy.NA and args.mlstrategy == MLStrategy.NA:
+            # only HE
+            tl.he_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition)
 
+        elif args.hestrategy == HEStrategy.NA and args.mlstrategy != MLStrategy.NA:
+            # only ML
+            dfLabels = tl.readFiles("./data/labels_datasets/"+str(args.cryptocurrency)+"_labels_"+str(args.mlstrategy)+"_3.csv")
+            tl.ml3_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
+        else:
+            # HE + ML
+            dfLabels = tl.readFiles("./data/labels_datasets/"+str(args.cryptocurrency)+"_labels_"+str(args.mlstrategy)+"_"+str(args.labels)+".csv")
+            if args.labels == 3:
+                tl.heml3_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
+            else:
+                tl.heml2_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
+
+    compute_trading_statistics(tradingReturn,typeOfPosition,args.cryptocurrency)
     print("END")
 
 if __name__ == "__main__":
