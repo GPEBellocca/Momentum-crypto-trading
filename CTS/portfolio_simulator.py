@@ -1,7 +1,7 @@
 import pandas as pd
 import datetime as dt
 from pandas_datareader import data
-import matplotlib
+#import matplotlib
 #matplotlib.use('TkAgg')
 #import matplotlib.pyplot as plt
 import portfolio_library as tl
