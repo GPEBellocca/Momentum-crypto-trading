@@ -7,6 +7,7 @@ from pandas_datareader import data
 import portfolio_library as tl
 from config import *
 import argparse
+import time
 
 
 def compute_trading_statistics(tradingReturn,typeOfPosition,crypto):
