@@ -33,6 +33,9 @@ from sklearn.metrics import classification_report
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.linear_model import LogisticRegression
 
+
+
+
 def create_df_parameters(df):
     dfres = pd.DataFrame()
     dailyReturns = []
@@ -124,7 +127,7 @@ def get_y_2(fileName):
 
 def computeTradingParameters(df_parameters, dayCounter):
     parameters = [0.0,0.0,0.0,0.0,0.0,0.0]
-    k = 0
+    k = 0.5
     pos = []
     neg = []
     
@@ -192,12 +195,63 @@ def get_cryptocurrency(cryptocurrency):
     return crypto
 
 
+def check_trading_period(tmp, start_date, end_date):
+    dates = tmp['Date'].to_numpy()
+    if start_date in dates and end_date in dates:
+        return 0
+    return -1
+
+def check_trading_date(last_date, start_date):
+    
+    last_date_list = last_date.split("-")
+    start_date_list = start_date.split("-")
+
+    if int(start_date_list[0]) > int(last_date_list[0]):
+        return -1
+    elif int(start_date_list[0]) == int(last_date_list[0]):
+        if int(start_date_list[1]) > int(last_date_list[1]):
+            return -1
+        elif int(start_date_list[1]) == int(last_date_list[1]):
+            if int(start_date_list[2]) > int(last_date_list[2]):
+                return -1
+    return 0
+
+def compute_trading_days_number(x,start_date):
+        trading_days_number = 0
+        for i in range(x.shape[0]-1,-1,-1):
+            trading_days_number = trading_days_number + 1
+            if x.iloc[i,0] == start_date:
+                break;
+
+        return trading_days_number
+
+def compute_train_trading_days(x,start_date,end_date):
+    training_days_number = 0
+    trading_days_number = 0
+    flag = 0  #| 0: training period 1: trading operiod
+    for i in range(x.shape[0]):
+            
+        if flag == 0 and x.iloc[i,0] != start_date:
+            training_days_number = training_days_number + 1
+        elif flag == 0 and x.iloc[i,0] == start_date:
+            flag = 1
+
+        if flag == 1 and x.iloc[i,0] != end_date:
+            trading_days_number = trading_days_number + 1
+        elif flag == 1 and x.iloc[i,0] == end_date:
+            trading_days_number = trading_days_number + 1
+            break
+
+    return training_days_number, trading_days_number
+
 
 def main():
     parser = argparse.ArgumentParser(description="AAA")
     parser.add_argument("cryptocurrency", type=Cryptocurrency,choices=list(Cryptocurrency))
     parser.add_argument("classifier", type=Classifier, choices=list(Classifier))
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
+    parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
+    parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
     args = parser.parse_args()
 
 
@@ -212,25 +266,53 @@ def main():
         labels = get_y_2(FileNames[crypto])
     elif args.labels == 3:
         labels = get_y_3(FileNames[crypto])
+    else:
+        print("Error: wrong number of labels (2 or 3 admitted)")
+        return
     y = pd.DataFrame()
     y["Labels"] = labels
 
 
-    x = pd.DataFrame()
-    x = pd.read_csv(FeaturesFileNames[crypto])
+    tmp = pd.DataFrame()
+    tmp = pd.read_csv(FeaturesFileNames[crypto])
+
+    x = tmp.tail(tmp.shape[0]-365) # eliminate first 365 obs used to calculate thresholds
+    
+    first_date = x.iloc[0,0]
+    last_date = x.iloc[x.shape[0]-1,0]
+
+    """
+    print(x.shape[0], first_date, last_date)
+    print(y, y.shape[0])
+    return
+    """
 
 
-    Y_train = y.head(y.shape[0]-366)['Labels'].to_numpy()
-    Y_test = y.tail(366)['Labels'].to_numpy()
+    if check_trading_period(x, args.start_date, args.end_date) == -1:
+        print("Error: Trading start or end not available. Data availability : " + first_date + " - " + last_date)
+        return
+    elif check_trading_date(args.end_date, args.start_date):
+        print("Error: Trading start date < then trading end date")
+        return
+    else:
+        #trading_days_number = compute_trading_days_number(x,args.start_date)
+        #training_days_number = x.shape[0] - trading_days_number
+        training_days_number, trading_days_number = compute_train_trading_days(x,args.start_date, args.end_date)
 
 
-    tmp = x.head(x.shape[0]-366)
-    X_train = tmp.tail(tmp.shape[0]-365)
-    X_test = x.tail(366)
+    tmp = y.head(training_days_number + trading_days_number)
+    Y_train = tmp.head(training_days_number)['Labels'].to_numpy()
+    Y_test = tmp.tail(trading_days_number)['Labels'].to_numpy()
+
+    tmp = x.head(training_days_number+trading_days_number)
+    X_train = tmp.head(training_days_number)
+    X_test = tmp.tail(trading_days_number)
+
 
 
     print("Train period: " + str(X_train.iloc[0,0]) + "  -  " + str(X_train.iloc[X_train.shape[0]-1,0]) + "  Number of observations: " +  str(X_train.shape[0]))
     print("Test period:  " + str(X_test.iloc[0,0]) + "  -  " + str(X_test.iloc[X_test.shape[0]-1,0]) + "  Number of observations: " +  str(X_test.shape[0]))
+
 
     dates = pd.DataFrame()
     dates['Date'] = X_test['Date']
@@ -257,7 +339,6 @@ def main():
     print("f1 weighted:",f1)
     print("Classiifcation report:")
     print(classification_report(Y_test, y_pred))
-
 
 
     result = pd.DataFrame()

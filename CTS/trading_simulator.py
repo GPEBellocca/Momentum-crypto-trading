@@ -35,12 +35,9 @@ def compute_trading_statistics(tradingReturn,typeOfPosition,crypto):
 
     print("Succesfull trades: ",success,"Percentage on total: ",(success/len(profitOrLoss))*100,"%\n")
 
-class HEStrategy(BaseEnum):
-    HE = "HE"
-    NA = "NA"
 
 
-class MLStrategy(BaseEnum):
+class Classifier(BaseEnum):
     L3 = "L3"
     MLP = "MLP"
     RFC = "RFC"
@@ -49,58 +46,83 @@ class MLStrategy(BaseEnum):
     MNB = "MNB"
     GNB = "GNB"
     LG = "LG"
-    NA = "NA"
+    HE = "HE"
+
+
+def check_trading_period(tmp, start_date, end_date):
+    dates = tmp['Date'].to_numpy()
+    if start_date in dates and end_date in dates:
+        return 0
+    return -1
+
+def check_trading_date(last_date, start_date):
+    
+    last_date_list = last_date.split("-")
+    start_date_list = start_date.split("-")
+    
+    if int(start_date_list[0]) > int(last_date_list[0]):
+        return -1
+    elif int(start_date_list[0]) == int(last_date_list[0]):
+        if int(start_date_list[1]) > int(last_date_list[1]):
+            return -1
+        elif int(start_date_list[1]) == int(last_date_list[1]):
+            if int(start_date_list[2]) > int(last_date_list[2]):
+                return -1
+    return 0
+
 
 def main():
     parser = argparse.ArgumentParser(description="AAA")
     parser.add_argument("cryptocurrency", type=Cryptocurrency,choices=list(Cryptocurrency))
-    parser.add_argument("hestrategy", type=HEStrategy, choices=list(HEStrategy))
-    parser.add_argument("mlstrategy", type=MLStrategy, choices=list(MLStrategy))
+    parser.add_argument("classifier", type=Classifier, choices=list(Classifier))
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
-    parser.add_argument("granularity", type=str, help="Granularity level (m or h)")
+    parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
+    parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
     args = parser.parse_args()
     
-    #open datasets
+    """ OPEN DATASETS """
     df = tl.readFiles("./data/daily_datasets/"+str(args.cryptocurrency)+"USD.csv")
-    dfDaily = tl.createDailyDataset(df)
-    start_date = dfDaily.iloc[0,0]
-    end_date = dfDaily.iloc[365,0]
+    x = df.head(df.shape[0]-365) # eliminate first 365 obs used to calculate thresholds
+    last_date = x.iloc[0,0]
+    first_date = x.iloc[x.shape[0]-1,0]
+    #check trading period
+    if check_trading_period(x, args.start_date, args.end_date) == -1:
+        print("Error: Trading start or end not available. Data availability : " + first_date + " - " + last_date)
+        return
+    elif check_trading_date(args.end_date, args.start_date):
+        print("Error: Trading start date < then trading end date")
+        return
 
-    if args.granularity == "h":
-        df = tl.readFiles("./data/hourly_datasets/"+str(args.cryptocurrency)+"USD"+str(args.granularity)+".csv")
-        dfHourly = tl.createHourlyDataset(df,start_date)
-    else:
-        df = tl.readFiles("./data/minute_datasets/"+str(args.cryptocurrency)+"USD"+str(args.granularity)+".csv")
-        dfMinute = tl.createMinuteDataset(df,start_date, end_date)
+    dfDaily = tl.createDailyDataset(df, args.start_date, args.end_date)
+
+    df = tl.readFiles("./data/minute_datasets/"+str(args.cryptocurrency)+"USDm.csv")
+    dfMinute = tl.createMinuteDataset(df,args.start_date, args.end_date)
 
 
 
-    #trading simulation
-
+    """ TRADING SIMULATION """
+    print("Trading period: " + args.start_date + " - " + args.end_date )
     tradingReturn = []
     typeOfPosition = []
     k = 0.5
+    
+    
 
-    if args.granularity == "h":
-        print("Hourly backtest not available")
-        return
+    if args.classifier == Classifier.HE:
+        # only HE
+        tl.he_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition)
     else:
-        if args.hestrategy != HEStrategy.NA and args.mlstrategy == MLStrategy.NA:
-            # only HE
-            tl.he_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition)
-
-        elif args.hestrategy == HEStrategy.NA and args.mlstrategy != MLStrategy.NA:
-            # only ML
-            dfLabels = tl.readFiles("./data/labels_datasets/"+str(args.cryptocurrency)+"_labels_"+str(args.mlstrategy)+"_3.csv")
-            tl.ml3_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
+        # HE + ML
+        dfLabels = tl.readFiles("./data/labels_datasets/"+str(args.cryptocurrency)+"_labels_"+str(args.classifier)+"_"+str(args.labels)+".csv")
+        if args.labels == 3:
+            # 3 labels
+            tl.heml3_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
         else:
-            # HE + ML
-            dfLabels = tl.readFiles("./data/labels_datasets/"+str(args.cryptocurrency)+"_labels_"+str(args.mlstrategy)+"_"+str(args.labels)+".csv")
-            if args.labels == 3:
-                tl.heml3_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
-            else:
-                tl.heml2_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
+            # 2 labels
+            tl.heml2_trading_m(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels)
 
+    
+    # compute final results
     compute_trading_statistics(tradingReturn,typeOfPosition,args.cryptocurrency)
     print("END")
 
