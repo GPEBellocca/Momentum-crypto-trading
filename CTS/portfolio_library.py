@@ -1,11 +1,11 @@
 import pandas as pd
 import datetime as dt
 from pandas_datareader import data
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import *
-import matplotlib.ticker as mtick
+#import matplotlib
+#matplotlib.use('TkAgg')
+#import matplotlib.pyplot as plt
+#from matplotlib.pyplot import *
+#import matplotlib.ticker as mtick
 import numpy as np
 import statistics as stat
 from statistics import stdev
