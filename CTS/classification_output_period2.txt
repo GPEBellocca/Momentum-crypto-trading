@@ -1,0 +1,702 @@
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC RFC 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 RandomForestClassifier(class_weight='balanced',
+                                        criterion='entropy',
+                                        min_samples_leaf=0.005,
+                                        min_samples_split=0.01,
+                                        n_estimators=200, n_jobs=-1,
+                                        random_state=42))])
+Weighted accuracy: 0.6967213114754098
+f1 weighted: 0.6853901576598205
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.24      0.25      0.25        36
+           0       0.81      0.84      0.83       289
+           1       0.10      0.07      0.09        41
+
+    accuracy                           0.70       366
+   macro avg       0.39      0.39      0.39       366
+weighted avg       0.68      0.70      0.69       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC RFC 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 RandomForestClassifier(class_weight='balanced',
+                                        criterion='entropy',
+                                        min_samples_leaf=0.005,
+                                        min_samples_split=0.01,
+                                        n_estimators=200, n_jobs=-1,
+                                        random_state=42))])
+Weighted accuracy: 0.7295081967213115
+f1 weighted: 0.7147778967698235
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.81      0.86      0.83       289
+           1       0.31      0.23      0.27        77
+
+    accuracy                           0.73       366
+   macro avg       0.56      0.55      0.55       366
+weighted avg       0.70      0.73      0.71       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC KNN 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 KNeighborsClassifier(algorithm='ball_tree', n_jobs=-1,
+                                      n_neighbors=7, weights='distance'))])
+Weighted accuracy: 0.773224043715847
+f1 weighted: 0.703468786023813
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.50      0.03      0.05        36
+           0       0.80      0.97      0.87       289
+           1       0.17      0.05      0.08        41
+
+    accuracy                           0.77       366
+   macro avg       0.49      0.35      0.33       366
+weighted avg       0.70      0.77      0.70       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC KNN 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 KNeighborsClassifier(algorithm='ball_tree', n_jobs=-1))])
+Weighted accuracy: 0.7704918032786885
+f1 weighted: 0.7300744944187567
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.81      0.93      0.87       289
+           1       0.39      0.16      0.22        77
+
+    accuracy                           0.77       366
+   macro avg       0.60      0.55      0.54       366
+weighted avg       0.72      0.77      0.73       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC SVC 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 SVC(C=0.001, class_weight='balanced', degree=5, kernel='poly',
+                     random_state=42))])
+Weighted accuracy: 0.7814207650273224
+f1 weighted: 0.7089721698570562
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.30      0.08      0.13        36
+           0       0.80      0.98      0.88       289
+           1       0.00      0.00      0.00        41
+
+    accuracy                           0.78       366
+   macro avg       0.37      0.35      0.34       366
+weighted avg       0.66      0.78      0.71       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC SVC 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 SVC(C=10, class_weight='balanced', degree=5, kernel='poly',
+                     random_state=42))])
+Weighted accuracy: 0.546448087431694
+f1 weighted: 0.5879744017212758
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.84      0.53      0.65       289
+           1       0.26      0.61      0.36        77
+
+    accuracy                           0.55       366
+   macro avg       0.55      0.57      0.50       366
+weighted avg       0.71      0.55      0.59       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC LG 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 LogisticRegression(C=1, class_weight='balanced', n_jobs=-1,
+                                    random_state=42, solver='liblinear'))])
+Weighted accuracy: 0.3743169398907104
+f1 weighted: 0.44385862956370264
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.13      0.11      0.12        36
+           0       0.81      0.38      0.52       289
+           1       0.11      0.54      0.18        41
+
+    accuracy                           0.37       366
+   macro avg       0.35      0.34      0.27       366
+weighted avg       0.66      0.37      0.44       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC LG 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 LogisticRegression(C=0.01, class_weight='balanced', n_jobs=-1,
+                                    penalty='l1', random_state=42,
+                                    solver='liblinear'))])
+Weighted accuracy: 0.20491803278688525
+f1 weighted: 0.07155867811605517
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       289
+           1       0.21      0.97      0.34        77
+
+    accuracy                           0.20       366
+   macro avg       0.10      0.49      0.17       366
+weighted avg       0.04      0.20      0.07       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC GNB 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()), ('clf', GaussianNB())])
+Weighted accuracy: 0.5382513661202186
+f1 weighted: 0.5750271476392298
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.14      0.58      0.23        36
+           0       0.82      0.61      0.70       289
+           1       0.00      0.00      0.00        41
+
+    accuracy                           0.54       366
+   macro avg       0.32      0.40      0.31       366
+weighted avg       0.66      0.54      0.58       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC GNB 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()), ('clf', GaussianNB())])
+Weighted accuracy: 0.6420765027322405
+f1 weighted: 0.6660406114019082
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.82      0.70      0.76       289
+           1       0.27      0.42      0.33        77
+
+    accuracy                           0.64       366
+   macro avg       0.54      0.56      0.54       366
+weighted avg       0.70      0.64      0.67       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC MLP 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 MLPClassifier(activation='tanh', early_stopping=True,
+                               hidden_layer_sizes=(30,),
+                               learning_rate_init=0.01, max_iter=10000,
+                               n_iter_no_change=3, random_state=42))])
+Weighted accuracy: 0.7622950819672131
+f1 weighted: 0.6969462833539251
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.15      0.08      0.11        36
+           0       0.80      0.96      0.87       289
+           1       0.00      0.00      0.00        41
+
+    accuracy                           0.76       366
+   macro avg       0.32      0.35      0.33       366
+weighted avg       0.64      0.76      0.70       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: BTC MLP 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 MLPClassifier(early_stopping=True, hidden_layer_sizes=(10,),
+                               learning_rate_init=0.0001, max_iter=10000,
+                               n_iter_no_change=3, random_state=42,
+                               solver='sgd'))])
+Weighted accuracy: 0.726775956284153
+f1 weighted: 0.695658773527626
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.79      0.89      0.84       289
+           1       0.23      0.13      0.17        77
+
+    accuracy                           0.73       366
+   macro avg       0.51      0.51      0.50       366
+weighted avg       0.67      0.73      0.70       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH RFC 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 RandomForestClassifier(class_weight='balanced',
+                                        min_samples_leaf=0.005,
+                                        min_samples_split=0.01,
+                                        n_estimators=200, n_jobs=-1,
+                                        random_state=42))])
+Weighted accuracy: 0.7349726775956285
+f1 weighted: 0.7233469837943738
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.10      0.10      0.10        29
+           0       0.84      0.87      0.85       301
+           1       0.18      0.11      0.14        36
+
+    accuracy                           0.73       366
+   macro avg       0.37      0.36      0.36       366
+weighted avg       0.71      0.73      0.72       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH RFC 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 RandomForestClassifier(class_weight='balanced',
+                                        min_samples_leaf=0.005,
+                                        min_samples_split=0.01,
+                                        n_estimators=200, n_jobs=-1,
+                                        random_state=42))])
+Weighted accuracy: 0.7595628415300546
+f1 weighted: 0.7477859430940267
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.84      0.88      0.86       301
+           1       0.27      0.22      0.24        65
+
+    accuracy                           0.76       366
+   macro avg       0.56      0.55      0.55       366
+weighted avg       0.74      0.76      0.75       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH KNN 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 KNeighborsClassifier(algorithm='ball_tree', n_jobs=-1,
+                                      n_neighbors=7))])
+Weighted accuracy: 0.7786885245901639
+f1 weighted: 0.7245293536372157
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.00      0.00      0.00        29
+           0       0.82      0.95      0.88       301
+           1       0.00      0.00      0.00        36
+
+    accuracy                           0.78       366
+   macro avg       0.27      0.32      0.29       366
+weighted avg       0.68      0.78      0.72       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH KNN 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 KNeighborsClassifier(algorithm='ball_tree', n_jobs=-1,
+                                      n_neighbors=7))])
+Weighted accuracy: 0.76775956284153
+f1 weighted: 0.7370854584746278
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.83      0.91      0.87       301
+           1       0.21      0.11      0.14        65
+
+    accuracy                           0.77       366
+   macro avg       0.52      0.51      0.50       366
+weighted avg       0.72      0.77      0.74       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH SVC 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 SVC(C=0.01, class_weight='balanced', degree=4, kernel='poly',
+                     random_state=42))])
+Weighted accuracy: 0.8169398907103825
+f1 weighted: 0.7555979643765902
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.00      0.00      0.00        29
+           0       0.84      0.98      0.90       301
+           1       0.25      0.08      0.12        36
+
+    accuracy                           0.82       366
+   macro avg       0.36      0.36      0.34       366
+weighted avg       0.71      0.82      0.76       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH SVC 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 SVC(C=0.001, class_weight='balanced', kernel='poly',
+                     random_state=42))])
+Weighted accuracy: 0.8224043715846995
+f1 weighted: 0.7422600175322175
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.82      1.00      0.90       301
+           1       0.00      0.00      0.00        65
+
+    accuracy                           0.82       366
+   macro avg       0.41      0.50      0.45       366
+weighted avg       0.68      0.82      0.74       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH LG 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 LogisticRegression(C=10, class_weight='balanced', n_jobs=-1,
+                                    random_state=42, solver='liblinear'))])
+Weighted accuracy: 0.5382513661202186
+f1 weighted: 0.5986712065759899
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.10      0.52      0.16        29
+           0       0.87      0.60      0.71       301
+           1       0.00      0.00      0.00        36
+
+    accuracy                           0.54       366
+   macro avg       0.32      0.37      0.29       366
+weighted avg       0.72      0.54      0.60       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH LG 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 LogisticRegression(C=0.01, class_weight='balanced', n_jobs=-1,
+                                    penalty='l1', random_state=42,
+                                    solver='liblinear'))])
+Weighted accuracy: 0.7404371584699454
+f1 weighted: 0.7455414857099952
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.85      0.83      0.84       301
+           1       0.29      0.32      0.31        65
+
+    accuracy                           0.74       366
+   macro avg       0.57      0.58      0.57       366
+weighted avg       0.75      0.74      0.75       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH GNB 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()), ('clf', GaussianNB())])
+Weighted accuracy: 0.8032786885245902
+f1 weighted: 0.7657063204973619
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.19      0.10      0.13        29
+           0       0.85      0.95      0.90       301
+           1       0.33      0.11      0.17        36
+
+    accuracy                           0.80       366
+   macro avg       0.46      0.39      0.40       366
+weighted avg       0.75      0.80      0.77       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH GNB 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()), ('clf', GaussianNB())])
+Weighted accuracy: 0.819672131147541
+f1 weighted: 0.7735515024759326
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.84      0.97      0.90       301
+           1       0.47      0.12      0.20        65
+
+    accuracy                           0.82       366
+   macro avg       0.65      0.55      0.55       366
+weighted avg       0.77      0.82      0.77       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH MLP 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 MLPClassifier(activation='tanh', early_stopping=True,
+                               hidden_layer_sizes=(10, 10),
+                               learning_rate_init=0.01, max_iter=10000,
+                               n_iter_no_change=3, random_state=42,
+                               solver='sgd'))])
+Weighted accuracy: 0.8224043715846995
+f1 weighted: 0.7422600175322175
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.00      0.00      0.00        29
+           0       0.82      1.00      0.90       301
+           1       0.00      0.00      0.00        36
+
+    accuracy                           0.82       366
+   macro avg       0.27      0.33      0.30       366
+weighted avg       0.68      0.82      0.74       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: ETH MLP 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 MLPClassifier(activation='tanh', early_stopping=True,
+                               hidden_layer_sizes=(10,),
+                               learning_rate='invscaling', max_iter=10000,
+                               n_iter_no_change=3, random_state=42,
+                               solver='sgd'))])
+Weighted accuracy: 0.5983606557377049
+f1 weighted: 0.6424453632550409
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.83      0.64      0.72       301
+           1       0.20      0.42      0.27        65
+
+    accuracy                           0.60       366
+   macro avg       0.52      0.53      0.50       366
+weighted avg       0.72      0.60      0.64       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC RFC 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 RandomForestClassifier(class_weight='balanced',
+                                        criterion='entropy',
+                                        min_samples_leaf=0.005,
+                                        min_samples_split=0.01,
+                                        n_estimators=200, n_jobs=-1,
+                                        random_state=42))])
+Weighted accuracy: 0.8060109289617486
+f1 weighted: 0.7635059090198735
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.00      0.00      0.00        34
+           0       0.85      0.95      0.89       311
+           1       0.06      0.05      0.05        21
+
+    accuracy                           0.81       366
+   macro avg       0.30      0.33      0.32       366
+weighted avg       0.73      0.81      0.76       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC RFC 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 RandomForestClassifier(class_weight='balanced',
+                                        criterion='entropy',
+                                        min_samples_leaf=0.005,
+                                        min_samples_split=0.01,
+                                        n_estimators=200, n_jobs=-1,
+                                        random_state=42))])
+Weighted accuracy: 0.8415300546448088
+f1 weighted: 0.8042736104211515
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.86      0.97      0.91       311
+           1       0.41      0.13      0.19        55
+
+    accuracy                           0.84       366
+   macro avg       0.64      0.55      0.55       366
+weighted avg       0.79      0.84      0.80       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC KNN 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 KNeighborsClassifier(algorithm='ball_tree', n_jobs=-1,
+                                      n_neighbors=7, weights='distance'))])
+Weighted accuracy: 0.8469945355191257
+f1 weighted: 0.7793352087173021
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.00      0.00      0.00        34
+           0       0.85      1.00      0.92       311
+           1       0.00      0.00      0.00        21
+
+    accuracy                           0.85       366
+   macro avg       0.28      0.33      0.31       366
+weighted avg       0.72      0.85      0.78       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC KNN 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 KNeighborsClassifier(algorithm='ball_tree', n_jobs=-1,
+                                      n_neighbors=7))])
+Weighted accuracy: 0.8415300546448088
+f1 weighted: 0.776604887224141
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.85      0.99      0.91       311
+           1       0.00      0.00      0.00        55
+
+    accuracy                           0.84       366
+   macro avg       0.42      0.50      0.46       366
+weighted avg       0.72      0.84      0.78       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC SVC 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 SVC(C=1, class_weight='balanced', degree=5, kernel='poly',
+                     random_state=42))])
+Weighted accuracy: 0.8224043715846995
+f1 weighted: 0.7876779483989585
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.12      0.03      0.05        34
+           0       0.86      0.95      0.90       311
+           1       0.31      0.24      0.27        21
+
+    accuracy                           0.82       366
+   macro avg       0.43      0.41      0.41       366
+weighted avg       0.76      0.82      0.79       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC SVC 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 SVC(C=1, class_weight='balanced', degree=4, kernel='poly',
+                     random_state=42))])
+Weighted accuracy: 0.819672131147541
+f1 weighted: 0.7953819354092578
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.86      0.94      0.90       311
+           1       0.31      0.16      0.21        55
+
+    accuracy                           0.82       366
+   macro avg       0.59      0.55      0.56       366
+weighted avg       0.78      0.82      0.80       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC LG 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 LogisticRegression(C=1, class_weight='balanced', n_jobs=-1,
+                                    penalty='l1', random_state=42,
+                                    solver='liblinear'))])
+Weighted accuracy: 0.773224043715847
+f1 weighted: 0.7562379344388059
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.00      0.00      0.00        34
+           0       0.87      0.89      0.88       311
+           1       0.11      0.24      0.15        21
+
+    accuracy                           0.77       366
+   macro avg       0.33      0.38      0.34       366
+weighted avg       0.74      0.77      0.76       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC LG 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 LogisticRegression(C=0.01, class_weight='balanced', n_jobs=-1,
+                                    penalty='l1', random_state=42,
+                                    solver='liblinear'))])
+Weighted accuracy: 0.4808743169398907
+f1 weighted: 0.5487258928241087
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.87      0.46      0.60       311
+           1       0.17      0.62      0.26        55
+
+    accuracy                           0.48       366
+   macro avg       0.52      0.54      0.43       366
+weighted avg       0.77      0.48      0.55       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC GNB 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()), ('clf', GaussianNB())])
+Weighted accuracy: 0.7923497267759563
+f1 weighted: 0.7684679536309763
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.22      0.06      0.09        34
+           0       0.86      0.92      0.89       311
+           1       0.08      0.10      0.09        21
+
+    accuracy                           0.79       366
+   macro avg       0.39      0.36      0.36       366
+weighted avg       0.76      0.79      0.77       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC GNB 2
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()), ('clf', GaussianNB())])
+Weighted accuracy: 0.8060109289617486
+f1 weighted: 0.7838274153049285
+Classiifcation report:
+              precision    recall  f1-score   support
+
+           0       0.86      0.92      0.89       311
+           1       0.25      0.15      0.18        55
+
+    accuracy                           0.81       366
+   macro avg       0.55      0.53      0.54       366
+weighted avg       0.77      0.81      0.78       366
+
+Train period: 2016-09-01  -  2019-06-30  Number of observations: 1021
+Test period:  2019-07-01  -  2020-06-30  Number of observations: 366
+SIMULATION ON: LTC MLP 3
+Best setup from validation: Pipeline(steps=[('scaler', StandardScaler()),
+                ('clf',
+                 MLPClassifier(activation='tanh', early_stopping=True,
+                               hidden_layer_sizes=(10, 10),
+                               learning_rate_init=0.1, max_iter=10000,
+                               n_iter_no_change=3, random_state=42))])
+Weighted accuracy: 0.8497267759562842
+f1 weighted: 0.780694320007103
+Classiifcation report:
+              precision    recall  f1-score   support
+
+          -1       0.00      0.00      0.00        34
+           0       0.85      1.00      0.92       311
+           1       0.00      0.00      0.00        21
+
+    accuracy                           0.85       366
+   macro avg       0.28      0.33      0.31       366
+weighted avg       0.72      0.85      0.78       366
+
