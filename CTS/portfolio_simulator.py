@@ -126,6 +126,7 @@ class Classifier(BaseEnum):
     GNB = "GNB"
     LG = "LG"
     HE = "HE"
+    AVG = "AVG"
 
 
 def check_trading_period(tmp, start_date, end_date):
@@ -203,17 +204,18 @@ def main():
         
         if args.classifier == Classifier.HE:
             # only HE
-            allocations, positions, returns, dates = tl.he_trading_minutes2(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,crypto,minutes)
+            allocations, positions, returns, dates = tl.he_trading_v3(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,crypto,minutes)
         else:
             # HE + ML
             dfLabels = tl.readFiles("./data/labels_datasets/"+str(crypto)+"_labels_"+str(args.classifier)+"_"+str(args.labels)+".csv")
             if args.labels == 3:
                 # 3 labels
-                allocations, positions, returns, dates = tl.heml3_trading_minutes(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes)
-            else:
+                allocations, positions, returns, dates = tl.heml3_trading_v3(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes)
+                #allocations, positions, returns, dates = tl.ml3_trading_v3(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes)
+            elif args.labels == 2:
                 # 2 labels
-                allocations, positions, returns, dates = tl.heml2_trading_minutes2(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels,crypto, minutes)
-                #print(tradingReturn)
+                allocations, positions, returns, dates = tl.heml2_trading_v3(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels,crypto, minutes)
+            
 
         # compute final results
         compute_trading_statistics(tradingReturn,typeOfPosition,crypto)

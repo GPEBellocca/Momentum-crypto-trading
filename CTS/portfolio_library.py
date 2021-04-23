@@ -108,389 +108,440 @@ def computeStartingDay(df):
 
 
 
-#HE strategy check
-def he_trading_check(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto, minutes):
-    
-    parameters = []
-    
-    dayOpenPrice = 0
-    cumulatedReturn = 0
-    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
-    openPrice = 0
-    
-    day_counter = 0
-    end_day_counter = 0
-    current_day = "9999-99-99"
-    yesterday = current_day
-    yesterday_label = 0
-    
+#HE strategy minutes v3
+def he_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto,minutes):
+
     dates = []
     allocations = []
     positions = []
     returns = []
     
-    pos_points = 0
-    neg_points = 0
-    
-    for i in range(dfMinute.shape[0]-1,-1,-1):
-        
-        if (dfMinute.iloc[i,0] != current_day):
-            
-            # new day
-            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
-            allocations.append(1)
-            dayOpenPrice = dfMinute.iloc[i,3]
-            day_counter = day_counter + 1
-            yesterday = current_day
-            current_day = dfMinute.iloc[i,0]
-            pos_points = 0
-            neg_points = 0
-            
-            if(day_counter > 1 and dfMinute.iloc[i+1,1] == 23 and dfMinute.iloc[i+1,2] == 59  and positionFlag != 0):
-                #close current position if there is an popen position and past day was a cpomplete day
-                closePrice = dfMinute.iloc[i,3]
-                positionReturn = (closePrice/openPrice)-1
-                tradingReturn.append(positionReturn)
-                typeOfPosition.append(positionFlag)
-            
-            #save day return
-            if day_counter > 1:
-                if crypto == "BTC":
-                    dates.append(yesterday)
-                if positionFlag == 1:
-                    ret = positionReturn
-                elif positionFlag == -1:
-                    ret = positionReturn * -1
-                else:
-                    ret = 0.0
-                positions.append(positionFlag)
-                returns.append(ret)
-            #allocations.append(dailyLabel)
-            
-            
-            positionFlag = 0
-        
-        current_price = dfMinute.iloc[i,3]
-        cumulatedReturn = (current_price/dayOpenPrice)-1
-        
-       
-        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 and pos_points < minutes):
-            pos_points = pos_points + 1
-        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 and neg_points < minutes):
-            neg_points = neg_points +1
-        
-            
-        
-        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 and pos_points == minutes):
-            #open long position if there isn't another position opened
-            positionFlag = 1
-            openPrice = current_price
-            #openPrice = dayOpenPrice * (1 + parameters[4])
-        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 and neg_points == minutes):
-            #open short position if there isn't another position opened
-            positionFlag = -1
-            openPrice = current_price
-            #openPrice = dayOpenPrice * (1 + parameters[5])
-
-
-        if(dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59):
-            end_day_counter = end_day_counter + 1
-    
-    day_counter = day_counter - 1
-    print("Total day counter: ",day_counter,"Complete day counter: ", end_day_counter)
-    allocations.pop()
-    return allocations, positions, returns, dates
-
-
-
-
-#HE strategy minutes
-def he_trading_minutes(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto,minutes):
-    
-    parameters = []
-    
-    dayOpenPrice = 0
-    cumulatedReturn = 0
-    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
-    openPrice = 0
-    
-    day_counter = 0
-    end_day_counter = 0
     current_day = "9999-99-99"
-    yesterday = current_day
-    yesterday_label = 0
-    
-    dates = []
-    allocations = []
-    positions = []
-    returns = []
-    
-    c = minutes
-    
-    for i in range(dfMinute.shape[0]-1,-1,-1):
-        
-        
-        
-        if (dfMinute.iloc[i,0] != current_day):
-            
-            # new day
-            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
-            allocations.append(1)
-            dayOpenPrice = dfMinute.iloc[i,3]
-            day_counter = day_counter + 1
-            yesterday = current_day
-            current_day = dfMinute.iloc[i,0]
-            
-            if(day_counter > 1 and dfMinute.iloc[i+1,1] == 23 and dfMinute.iloc[i+1,2] == 59  and positionFlag != 0):
-                #close current position if there is an popen position and past day was a cpomplete day
-                closePrice = dfMinute.iloc[i,3]
-                positionReturn = (closePrice/openPrice)-1
-                tradingReturn.append(positionReturn)
-                typeOfPosition.append(positionFlag)
-            
-            #save day return
-            if day_counter > 1:
-                if crypto == "BTC":
-                    dates.append(yesterday)
-                if positionFlag == 1:
-                    ret = positionReturn
-                elif positionFlag == -1:
-                    ret = positionReturn * -1
-                else:
-                    ret = 0.0
-                positions.append(positionFlag)
-                returns.append(ret)
-            #allocations.append(dailyLabel)
-            
-            
-            positionFlag = 0
-        
-        current_price = dfMinute.iloc[i,3]
-        cumulatedReturn = (current_price/dayOpenPrice)-1
-        
-        
-        
-        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 and c == minutes ):
-            #open long position if there isn't another position opened
-            positionFlag = 1
-            openPrice = current_price
-            #openPrice = dayOpenPrice * (1 + parameters[4])
-        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 and c == minutes):
-            #open short position if there isn't another position opened
-            positionFlag = -1
-            openPrice = current_price
-            #openPrice = dayOpenPrice * (1 + parameters[5])
-        
-        if(dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59):
-            end_day_counter = end_day_counter + 1
-        
-        c = c + 1
-        if c == (minutes + 1):
-            c = 1
-        
-    day_counter = day_counter - 1
-    print("Total day counter: ",day_counter,"Complete day counter: ", end_day_counter)
-    allocations.pop()
-    return allocations, positions, returns, dates
-
-
-#HE strategy minutes v2
-def he_trading_minutes2(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto,minutes):
-    
-    parameters = []
-    
-    dayOpenPrice = 0
-    cumulatedReturn = 0
-    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
-    openPrice = 0
-    
     day_counter = 0
-    end_day_counter = 0
-    current_day = "9999-99-99"
-    yesterday = current_day
-    yesterday_label = 0
-    
-    dates = []
-    allocations = []
-    positions = []
-    returns = []
+    complete_day_counter = 0
     
     hour_phase = 0
     minute_phase = 0
-    
+    stop = 999
+    stop_loss_flag = 0
     
     if minutes < 60:
         minute_phase = minutes
     else:
         hour_phase = minutes / 60
         minute_phase = minutes - (hour_phase*60)
-
     target_hour = 0
     target_minute = 0
+    end_day_flag = 0
 
-    
+
+
     for i in range(dfMinute.shape[0]-1,-1,-1):
         
-        
         if (dfMinute.iloc[i,0] != current_day):
-            
-            # new day
+            current_day = dfMinute.iloc[i,0]
             parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
-            allocations.append(1)
             dayOpenPrice = dfMinute.iloc[i,3]
             day_counter = day_counter + 1
-            yesterday = current_day
-            current_day = dfMinute.iloc[i,0]
+            positionFlag = 0
+            stop_loss_flag = 0
             target_hour = 0
             target_minute = 0
-            
-            
-            if(day_counter > 1 and dfMinute.iloc[i+1,1] == 23 and dfMinute.iloc[i+1,2] == 59  and positionFlag != 0):
-                #close current position if there is an popen position and past day was a cpomplete day
-                closePrice = dfMinute.iloc[i,3]
-                positionReturn = (closePrice/openPrice)-1
-                tradingReturn.append(positionReturn)
-                typeOfPosition.append(positionFlag)
-                print("close",closePrice)
 
-            
-            #save day return
-            if day_counter > 1:
-                if crypto == "BTC":
-                    dates.append(yesterday)
-                if positionFlag == 1:
-                    ret = positionReturn
-                elif positionFlag == -1:
-                    ret = positionReturn * -1
-                else:
-                    ret = 0.0
-                positions.append(positionFlag)
-                returns.append(ret)
-            #allocations.append(dailyLabel)
-            
-            
-            positionFlag = 0
-        
+
         current_price = dfMinute.iloc[i,3]
         cumulatedReturn = (current_price/dayOpenPrice)-1
-        
-        
-        
+
         if(cumulatedReturn >= parameters[4]  and positionFlag == 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute):
             #open long position if there isn't another position opened
             positionFlag = 1
             openPrice = current_price
-            print(dfMinute.iloc[i,0],openPrice,positionFlag)
-            #openPrice = dayOpenPrice * (1 + parameters[4])
         elif(cumulatedReturn <= parameters[5] and positionFlag == 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute):
             #open short position if there isn't another position opened
             positionFlag = -1
             openPrice = current_price
-            print(dfMinute.iloc[i,0],openPrice,positionFlag)
 
-            #openPrice = dayOpenPrice * (1 + parameters[5])
+
+        """ stop loss """
+        if positionFlag != 0:
+            position_current_return = (current_price/openPrice)-1
+            if positionFlag == 1 and position_current_return <= -1*stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
+            elif positionFlag == -1 and position_current_return >= stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
 
 
         if dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute:
             target_hour = target_hour + hour_phase
             target_minute = target_minute + minute_phase
-
             if target_minute >= 60:
                 target_hour = target_hour + 1
                 target_minute = target_minute - 60
             if target_hour >= 24:
                 target_hour = 0
-        
-        if(dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59):
-            end_day_counter = end_day_counter + 1
-        
 
-    day_counter = day_counter - 1
-    print("Total day counter: ",day_counter,"Complete day counter: ", end_day_counter)
-    allocations.pop()
+        if(dfMinute.iloc[i,0] == current_day and dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59 ):
+            #end of day
+            end_day_flag = 1
+            complete_day_counter = complete_day_counter + 1
+            if crypto == "BTC":
+                dates.append(current_day)
+            allocations.append(1) # heuristic always allocate resources
+            ret = 0.0
+            
+            if positionFlag != 0:
+                #close current position if there is an open position and the day is a complete day
+                closePrice = dfMinute.iloc[i,3]
+                positionReturn = (closePrice/openPrice)-1
+                if stop_loss_flag == 1:
+                    positionReturn = stop_return
+                    stop_loss_flag = 0
+
+                tradingReturn.append(positionReturn)
+                typeOfPosition.append(positionFlag)
+            
+                if positionFlag == 1:
+                    ret = positionReturn
+                elif positionFlag == -1:
+                    ret = positionReturn * -1
+        
+            positions.append(positionFlag)
+            returns.append(ret)
+            positionFlag = 0
+                
+        
+                    
+    print("Total number of day:",day_counter,"Complete days",complete_day_counter)
     return allocations, positions, returns, dates
 
-
-#HE strategy
-def he_trading(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto):
-    
-    parameters = []
-    
-    dayOpenPrice = 0
-    cumulatedReturn = 0
-    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
-    openPrice = 0
-    
-    day_counter = 0
-    end_day_counter = 0
-    current_day = "9999-99-99"
-    yesterday = current_day
-    yesterday_label = 0
+#HE + ML 3 labels strategy minutes v3
+def heml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes):
     
     dates = []
     allocations = []
     positions = []
     returns = []
     
+    current_day = "9999-99-99"
+    day_counter = 0
+    complete_day_counter = 0
+    
+    hour_phase = 0
+    minute_phase = 0
+    stop = 999
+    stop_loss_flag = 0
+    
+    if minutes < 60:
+        minute_phase = minutes
+    else:
+        hour_phase = minutes / 60
+        minute_phase = minutes - (hour_phase*60)
+    target_hour = 0
+    target_minute = 0
+    
+    
+    
     for i in range(dfMinute.shape[0]-1,-1,-1):
         
         if (dfMinute.iloc[i,0] != current_day):
-            
-            # new day
+            current_day = dfMinute.iloc[i,0]
             parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
-            allocations.append(1)
+            dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
             dayOpenPrice = dfMinute.iloc[i,3]
             day_counter = day_counter + 1
-            yesterday = current_day
-            current_day = dfMinute.iloc[i,0]
-            
-            if(day_counter > 1 and dfMinute.iloc[i+1,1] == 23 and dfMinute.iloc[i+1,2] == 59  and positionFlag != 0):
-                #close current position if there is an popen position and past day was a cpomplete day
-                closePrice = dfMinute.iloc[i,3]
-                positionReturn = (closePrice/openPrice)-1
-                tradingReturn.append(positionReturn)
-                typeOfPosition.append(positionFlag)
-            
-            #save day return
-            if day_counter > 1:
-                if crypto == "BTC":
-                    dates.append(yesterday)
-                if positionFlag == 1:
-                    ret = positionReturn
-                elif positionFlag == -1:
-                    ret = positionReturn * -1
-                else:
-                    ret = 0.0
-                positions.append(positionFlag)
-                returns.append(ret)
-            #allocations.append(dailyLabel)
-            
-            
             positionFlag = 0
+            stop_loss_flag = 0
+            target_hour = 0
+            target_minute = 0
+        
         
         current_price = dfMinute.iloc[i,3]
         cumulatedReturn = (current_price/dayOpenPrice)-1
         
-        
-        
-        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 ):
+        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute and dailyLabel == 1):
             #open long position if there isn't another position opened
             positionFlag = 1
-            #openPrice = current_price
-            openPrice = dayOpenPrice * (1 + parameters[4])
-        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 ):
+            openPrice = current_price
+        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute and dailyLabel == -1):
             #open short position if there isn't another position opened
             positionFlag = -1
-            #openPrice = current_price
-            openPrice = dayOpenPrice * (1 + parameters[5])
+            openPrice = current_price
         
-        if(dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59):
-            end_day_counter = end_day_counter + 1
+        
+        """ stop loss """
+        if positionFlag != 0:
+            position_current_return = (current_price/openPrice)-1
+            if positionFlag == 1 and position_current_return <= -1*stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
+            elif positionFlag == -1 and position_current_return >= stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
     
-    day_counter = day_counter - 1
-    print("Total day counter: ",day_counter,"Complete day counter: ", end_day_counter)
-    allocations.pop()
+        
+        if dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute:
+            target_hour = target_hour + hour_phase
+            target_minute = target_minute + minute_phase
+            if target_minute >= 60:
+                target_hour = target_hour + 1
+                target_minute = target_minute - 60
+            if target_hour >= 24:
+                target_hour = 0
+
+        if(dfMinute.iloc[i,0] == current_day and dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59 ):
+            #end of day
+            complete_day_counter = complete_day_counter + 1
+            if crypto == "BTC":
+                dates.append(current_day)
+            allocations.append(dailyLabel)
+            ret = 0.0
+            
+            if positionFlag != 0:
+                #close current position if there is an open position and the day is a complete day
+                closePrice = dfMinute.iloc[i,3]
+                positionReturn = (closePrice/openPrice)-1
+                if stop_loss_flag == 1:
+                    positionReturn = stop_return
+                    stop_loss_flag = 0
+                
+                tradingReturn.append(positionReturn)
+                typeOfPosition.append(positionFlag)
+                
+                if positionFlag == 1:
+                    ret = positionReturn
+                elif positionFlag == -1:
+                    ret = positionReturn * -1
+            
+            positions.append(positionFlag)
+            returns.append(ret)
+            positionFlag = 0
+
+
+
+    print("Total number of day:",day_counter,"Complete days",complete_day_counter)
     return allocations, positions, returns, dates
+
+
+#HE + ML 2 labels strategy minutes v3
+def heml2_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes):
+    
+    dates = []
+    allocations = []
+    positions = []
+    returns = []
+    
+    current_day = "9999-99-99"
+    day_counter = 0
+    complete_day_counter = 0
+    
+    hour_phase = 0
+    minute_phase = 0
+    stop = 999
+    stop_loss_flag = 0
+    
+    if minutes < 60:
+        minute_phase = minutes
+    else:
+        hour_phase = minutes / 60
+        minute_phase = minutes - (hour_phase*60)
+    target_hour = 0
+    target_minute = 0
+    
+    
+    
+    for i in range(dfMinute.shape[0]-1,-1,-1):
+        
+        if (dfMinute.iloc[i,0] != current_day):
+            current_day = dfMinute.iloc[i,0]
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
+            dayOpenPrice = dfMinute.iloc[i,3]
+            day_counter = day_counter + 1
+            positionFlag = 0
+            stop_loss_flag = 0
+            target_hour = 0
+            target_minute = 0
+        
+        
+        current_price = dfMinute.iloc[i,3]
+        cumulatedReturn = (current_price/dayOpenPrice)-1
+        
+        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute and dailyLabel != 0):
+            #open long position if there isn't another position opened
+            positionFlag = 1
+            openPrice = current_price
+        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute and dailyLabel != 0):
+            #open short position if there isn't another position opened
+            positionFlag = -1
+            openPrice = current_price
+        
+        
+        """ stop loss """
+        if positionFlag != 0:
+            position_current_return = (current_price/openPrice)-1
+            if positionFlag == 1 and position_current_return <= -1*stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
+            elif positionFlag == -1 and position_current_return >= stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
+    
+        
+        if dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute:
+            target_hour = target_hour + hour_phase
+            target_minute = target_minute + minute_phase
+            if target_minute >= 60:
+                target_hour = target_hour + 1
+                target_minute = target_minute - 60
+            if target_hour >= 24:
+                target_hour = 0
+        
+        if(dfMinute.iloc[i,0] == current_day and dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59 ):
+            #end of day
+            complete_day_counter = complete_day_counter + 1
+            if crypto == "BTC":
+                dates.append(current_day)
+            allocations.append(dailyLabel)
+            ret = 0.0
+            
+            if positionFlag != 0:
+                #close current position if there is an open position and the day is a complete day
+                closePrice = dfMinute.iloc[i,3]
+                positionReturn = (closePrice/openPrice)-1
+                if stop_loss_flag == 1:
+                    positionReturn = stop_return
+                    stop_loss_flag = 0
+            
+                tradingReturn.append(positionReturn)
+                typeOfPosition.append(positionFlag)
+                
+                if positionFlag == 1:
+                    ret = positionReturn
+                elif positionFlag == -1:
+                    ret = positionReturn * -1
+            
+            positions.append(positionFlag)
+            returns.append(ret)
+            positionFlag = 0
+                
+                
+                
+    print("Total number of day:",day_counter,"Complete days",complete_day_counter)
+    return allocations, positions, returns, dates
+
+
+#ML 3 labels strategy minutes v3
+def ml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes):
+    
+    dates = []
+    allocations = []
+    positions = []
+    returns = []
+    
+    current_day = "9999-99-99"
+    day_counter = 0
+    complete_day_counter = 0
+    
+    hour_phase = 0
+    minute_phase = 0
+    stop = 999
+    stop_loss_flag = 0
+    
+    if minutes < 60:
+        minute_phase = minutes
+    else:
+        hour_phase = minutes / 60
+        minute_phase = minutes - (hour_phase*60)
+    target_hour = 0
+    target_minute = 0
+    
+    
+    
+    for i in range(dfMinute.shape[0]-1,-1,-1):
+        
+        if (dfMinute.iloc[i,0] != current_day):
+            current_day = dfMinute.iloc[i,0]
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
+            dayOpenPrice = dfMinute.iloc[i,3]
+            day_counter = day_counter + 1
+            positionFlag = 0
+            stop_loss_flag = 0
+            target_hour = 0
+            target_minute = 0
+        
+        
+        current_price = dfMinute.iloc[i,3]
+        cumulatedReturn = (current_price/dayOpenPrice)-1
+        
+        if(positionFlag == 0 and dailyLabel == 1):
+            #open long position if there isn't another position opened
+            positionFlag = 1
+            openPrice = current_price
+        elif(positionFlag == 0 and dailyLabel == -1):
+            #open short position if there isn't another position opened
+            positionFlag = -1
+            openPrice = current_price
+        
+        
+        """ stop loss """
+        if positionFlag != 0:
+            position_current_return = (current_price/openPrice)-1
+            if positionFlag == 1 and position_current_return <= -1*stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
+            elif positionFlag == -1 and position_current_return >= stop and stop_loss_flag == 0:
+                stop_loss_flag = 1
+                stop_return = position_current_return
+    
+        
+        if dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute:
+            target_hour = target_hour + hour_phase
+            target_minute = target_minute + minute_phase
+            if target_minute >= 60:
+                target_hour = target_hour + 1
+                target_minute = target_minute - 60
+            if target_hour >= 24:
+                target_hour = 0
+
+        if(dfMinute.iloc[i,0] == current_day and dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59 ):
+            #end of day
+            complete_day_counter = complete_day_counter + 1
+            if crypto == "BTC":
+                dates.append(current_day)
+            allocations.append(dailyLabel)
+            ret = 0.0
+            
+            if positionFlag != 0:
+                #close current position if there is an open position and the day is a complete day
+                closePrice = dfMinute.iloc[i,3]
+                positionReturn = (closePrice/openPrice)-1
+                if stop_loss_flag == 1:
+                    positionReturn = stop_return
+                    stop_loss_flag = 0
+                
+                tradingReturn.append(positionReturn)
+                typeOfPosition.append(positionFlag)
+                
+                if positionFlag == 1:
+                    ret = positionReturn
+                elif positionFlag == -1:
+                    ret = positionReturn * -1
+            
+            positions.append(positionFlag)
+            returns.append(ret)
+            positionFlag = 0
+
+
+
+    print("Total number of day:",day_counter,"Complete days",complete_day_counter)
+    return allocations, positions, returns, dates
+""" ---------------------------------------------------------------------------------------------  """
+""" ---------------------------------------------------------------------------------------------  """
+""" ---------------------------------------------------------------------------------------------  """
+
 
 #HE + ML strategy with 3 labels minutes
 def heml3_trading_minutes(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto, minutes):
@@ -867,6 +918,117 @@ def heml2_trading_minutes(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,
     return allocations, positions, returns, dates
 
 
+#HE + ML strategy with 2 labels minutes vf
+def heml2_trading_minutes_VF(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes):
+    
+    parameters = []
+    
+    dayOpenPrice = 0
+    cumulatedReturn = 0
+    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
+    openPrice = 0
+    
+    day_counter = 0
+    end_day_counter = 0
+    current_day = "9999-99-99"
+    yesterday = current_day
+    yesterday_label = 0
+    
+    dates = []
+    allocations = []
+    positions = []
+    returns = []
+    
+    hour_phase = 0
+    minute_phase = 0
+    
+    
+    if minutes < 60:
+        minute_phase = minutes
+    else:
+        hour_phase = minutes / 60
+        minute_phase = minutes - (hour_phase*60)
+    
+    target_hour = 0
+    target_minute = 0
+    
+    for i in range(dfMinute.shape[0]-1,-1,-1):
+        
+        if (dfMinute.iloc[i,0] != current_day):
+            
+            # new day
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
+            allocations.append(dailyLabel)
+            dayOpenPrice = dfMinute.iloc[i,3]
+            day_counter = day_counter + 1
+            yesterday = current_day
+            current_day = dfMinute.iloc[i,0]
+            target_hour = 0
+            target_minute = 0
+            
+            ret = 0.0
+            
+            if(day_counter > 1 and dfMinute.iloc[i+1,1] == 23 and dfMinute.iloc[i+1,2] == 59  and positionFlag != 0):
+                #close current position if there is an popen position and past day was a cpomplete day
+                closePrice = dfMinute.iloc[i,3]
+                positionReturn = (closePrice/openPrice)-1
+                tradingReturn.append(positionReturn)
+                typeOfPosition.append(positionFlag)
+                if positionFlag == 1:
+                    ret = positionReturn
+                elif positionFlag == -1:
+                    ret = positionReturn * -1
+                
+            
+            #save day return
+            if day_counter > 1:
+                if crypto == "BTC":
+                    dates.append(yesterday)
+            
+                positions.append(positionFlag)
+                returns.append(ret)
+            #allocations.append(dailyLabel)
+            
+            
+            positionFlag = 0
+        
+        current_price = dfMinute.iloc[i,3]
+        cumulatedReturn = (current_price/dayOpenPrice)-1
+        
+        
+        
+        if(cumulatedReturn >= parameters[4]  and positionFlag == 0 and dailyLabel != 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute):
+            #open long position if there isn't another position opened
+            positionFlag = 1
+            openPrice = current_price
+        #openPrice = dayOpenPrice * (1 + parameters[4])
+        elif(cumulatedReturn <= parameters[5] and positionFlag == 0 and dailyLabel != 0 and dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute):
+            #open short position if there isn't another position opened
+            positionFlag = -1
+            openPrice = current_price
+        #openPrice = dayOpenPrice * (1 + parameters[5])
+        
+        
+        if dfMinute.iloc[i,1] == target_hour and dfMinute.iloc[i,2] == target_minute:
+            target_hour = target_hour + hour_phase
+            target_minute = target_minute + minute_phase
+            
+            if target_minute >= 60:
+                target_hour = target_hour + 1
+                target_minute = target_minute - 60
+            if target_hour >= 24:
+                target_hour = 0
+    
+        if(dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59):
+            end_day_counter = end_day_counter + 1
+
+
+
+    day_counter = day_counter - 1
+    print("Total day counter: ",day_counter,"Complete day counter: ", end_day_counter)
+    allocations.pop()
+    return allocations, positions, returns, dates
 
 
 
@@ -950,6 +1112,94 @@ def heml2_trading(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels
     day_counter = day_counter - 1
     print("Total day counter: ",day_counter,"Complete day counter: ", end_day_counter)
     allocations.pop()
+    return allocations, positions, returns, dates
+
+#ML strategy with 3 labels
+def ml3_trading(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto):
+    
+    parameters = []
+    
+    dayOpenPrice = 0
+    cumulatedReturn = 0
+    positionFlag = 0 # 0: no position opened | 1: long position | -1: short position
+    openPrice = 0
+    
+    day_counter = 0
+    end_day_counter = 0
+    current_day = "9999-99-99"
+    yesterday = current_day
+    yesterday_label = 0
+    
+    dates = []
+    allocations = []
+    positions = []
+    returns = []
+    
+    
+    for i in range(dfMinute.shape[0]-1,-1,-1):
+        
+        if (dfMinute.iloc[i,0] != current_day):
+            
+            # new day
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
+            allocations.append(dailyLabel)
+            dayOpenPrice = dfMinute.iloc[i,3]
+            day_counter = day_counter + 1
+            yesterday = current_day
+            current_day = dfMinute.iloc[i,0]
+            
+            ret = 0
+            if(day_counter > 1 and dfMinute.iloc[i+1,1] == 23 and dfMinute.iloc[i+1,2] == 59  and positionFlag != 0):
+                #close current position if there is an popen position and past day was a cpomplete day
+                closePrice = dfMinute.iloc[i,3]
+                positionReturn = (closePrice/openPrice)-1
+                tradingReturn.append(positionReturn)
+                typeOfPosition.append(positionFlag)
+            
+                if positionFlag == 1:
+                    ret = positionReturn
+                elif positionFlag == -1:
+                    ret = positionReturn * -1
+                else:
+                    ret = 0.0
+            
+            #save day return
+            if day_counter > 1:
+                if crypto == "BTC":
+                    dates.append(yesterday)
+                positions.append(positionFlag)
+                returns.append(ret)
+                positionFlag = 0
+            
+            current_price = dfMinute.iloc[i,3]
+            
+            if(positionFlag == 0 and dailyLabel == 1 ):
+                #open long position if there isn't another position opened
+                positionFlag = 1
+                openPrice = current_price
+            #openPrice = dayOpenPrice * (1 + parameters[4])
+            elif(positionFlag == 0 and dailyLabel == -1 ):
+                #open short position if there isn't another position opened
+                positionFlag = -1
+                openPrice = current_price
+            #openPrice = dayOpenPrice * (1 + parameters[5])
+            
+            
+            
+        
+        
+        current_price = dfMinute.iloc[i,3]
+        cumulatedReturn = (current_price/dayOpenPrice)-1
+
+        if(dfMinute.iloc[i,1] == 23 and dfMinute.iloc[i,2] == 59):
+            end_day_counter = end_day_counter + 1
+        
+    
+    day_counter = day_counter - 1
+    print("Total day counter: ",day_counter,"Complete day counter: ", end_day_counter)
+    allocations.pop()
+    
     return allocations, positions, returns, dates
 
 
