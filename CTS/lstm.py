@@ -16,19 +16,18 @@ class LSTMClassifier(pl.LightningModule):
         input_size,
         hidden_size,
         num_layers,
-        num_directions,
         batch_size,
+        bidirectional=False,
         stateful=False,
         class_weights=None,
     ):
         super().__init__()
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.num_directions = num_directions
-        self.batch_size = batch_size
-        self.stateful = stateful
-        self.class_weights = class_weights
+
+        self.num_directions = (
+            2 if bidirectional else 1
+        )  # TODO I don't think this can be bidirectional though
+
+        self.save_hyperparameters()
 
         self.lstm = nn.LSTM(
             input_size, hidden_size, num_layers, dropout=0.1, batch_first=True
@@ -38,6 +37,7 @@ class LSTMClassifier(pl.LightningModule):
 
         if stateful:
             self.hidden = self.init_hidden()
+            self.last_hidden = self.hidden.detach()
 
         self.loss_fct = nn.CrossEntropyLoss(weight=class_weights)
 
@@ -45,25 +45,37 @@ class LSTMClassifier(pl.LightningModule):
         self.val_acc = tm.Accuracy(num_classes=3, average="weighted")
 
     def init_hidden(self):
+        #  save last hidden states right before wiping them
+        self.last_hidden = self.hidden.detach()
         return (
             torch.zeros(
-                self.num_layers * self.num_directions, self.batch_size, self.hidden_size
+                self.hparams.num_layers * self.num_directions,
+                self.hparams.batch_size,
+                self.hparams.hidden_size,
             ),
             torch.zeros(
-                self.num_layers * self.num_directions, self.batch_size, self.hidden_size
+                self.hparams.num_layers * self.num_directions,
+                self.hparams.batch_size,
+                self.hparams.hidden_size,
             ),
         )
 
     def forward(self, inputs):
-        out, (h_n, c_n) = self.lstm(inputs)
+        if self.stateful:
+            out, (h_n, c_n) = self.lstm(inputs, self.hidden)
+        else:
+            out, (h_n, c_n) = self.lstm(inputs)
 
         # keep states between batches
-        if self.stateful:
+        if self.hparams.stateful:
             self.hidden = (h_n, c_n)
 
         batch_size = inputs.shape[0]
         h_n = h_n.view(
-            self.num_layers, self.num_directions, batch_size, self.hidden_size
+            self.hparams.num_layers,
+            self.num_directions,
+            batch_size,
+            self.hparams.hidden_size,
         )
 
         # use only the last output
@@ -100,11 +112,11 @@ class LSTMClassifier(pl.LightningModule):
         self.log("test_loss", loss)
 
     def training_epoch_end(self, outputs):
-        if self.stateful:
+        if self.hparams.stateful:
             self.hidden = self.init_hidden()
 
     def validation_epoch_end(self, outputs):
-        if self.stateful:
+        if self.hparams.stateful:
             self.hidden = self.init_hidden()
 
     def configure_optimizers(self):
@@ -122,68 +134,6 @@ def torchlabels_to_labels(labels):
     return np.vectorize(d.get)(labels)
 
 
-def get_class_weights(labels):
-    counter = Counter(labels)
-    class_weights = list()
-    for c in sorted(list(counter.keys())):
-        class_weights.append(1 - counter[c] / len(labels))
-    return torch.tensor(class_weights, dtype=torch.float)
-
-
-def train_and_test_lstm(
-    X_train: np.array, y_train: np.array, seq_length, batch_size, max_epochs, gpus, seed
-):
-    if not os.path.exists("dumps"):
-        os.mkdir("dumps")
-
-    pl.seed_everything(seed, workers=True)
-
-    # use only labels >= 0
-    y_train = labels_to_torchlabels(y_train)
-    class_weights = get_class_weights(y_train)
-
-    # create the sequences for LSTM
-    sequences = create_examples(X_train, y_train, seq_length)
-
-    train, val = train_test_split(sequences, train_size=0.8)
-
-    train_dataloader = DataLoader(
-        SequenceDataset(train), batch_size=batch_size, shuffle=False
-    )
-    val_dataloader = DataLoader(
-        SequenceDataset(val), batch_size=batch_size, shuffle=False
-    )
-
-    model = LSTMClassifier(
-        input_size=X_train.shape[1],
-        hidden_size=512,
-        num_layers=4,
-        num_directions=1,
-        batch_size=batch_size,
-        stateful=True,
-        class_weights=class_weights,
-    )
-
-    model_checkpoint = pl.callbacks.ModelCheckpoint(
-        monitor="val_loss",
-        dirpath="dumps",
-        filename="PL-{epoch}-{val_loss:.3f}-{train_loss:.3f}",
-    )
-
-    callbacks = [model_checkpoint]
-
-    # Initialize a trainer
-    trainer = pl.Trainer(gpus=gpus, max_epochs=max_epochs, callbacks=callbacks)
-
-    # Train the model ⚡
-    trainer.fit(model, train_dataloader, val_dataloader)
-
-    # TODO Predict the test set
-    # best_model = LSTMClassifier.load_from_checkpoint(model_checkpoint.# best_model_path).eval()
-
-    # with torch.no_grad():
-
-
 def create_examples(data: np.array, targets: np.array, seq_length):
     data_len = data.shape[0]
 
@@ -197,6 +147,14 @@ def create_examples(data: np.array, targets: np.array, seq_length):
     return seqs
 
 
+def get_class_weights(labels):
+    counter = Counter(labels)
+    class_weights = list()
+    for c in sorted(list(counter.keys())):
+        class_weights.append(1 - counter[c] / len(labels))
+    return torch.tensor(class_weights, dtype=torch.float)
+
+
 class SequenceDataset(Dataset):
     def __init__(self, sequences):
         self.sequences = sequences
@@ -206,3 +164,94 @@ class SequenceDataset(Dataset):
 
     def __getitem__(self, idx):
         return self.sequences[idx]
+
+
+def train_and_test_lstm(
+    X_train: np.array,
+    y_train: np.array,
+    X_test: np.array,
+    y_test: np.array,
+    seq_length,
+    batch_size,
+    max_epochs,
+    gpus,
+    seed,
+    early_stop,
+):
+    if not os.path.exists("dumps"):
+        os.mkdir("dumps")
+
+    pl.seed_everything(seed, workers=True)
+
+    # use only labels >= 0
+    y_train = labels_to_torchlabels(y_train)
+    class_weights = get_class_weights(y_train)
+    print("Class weights computed:", class_weights)
+
+    # create the sequences for LSTM
+    sequences = create_examples(X_train, y_train, seq_length)
+
+    # use 20% of the training set for validation
+    train, val = train_test_split(sequences, train_size=0.8)
+
+    train_dataloader = DataLoader(
+        SequenceDataset(train), batch_size=batch_size, shuffle=False
+    )
+    val_dataloader = DataLoader(
+        SequenceDataset(val), batch_size=batch_size, shuffle=False
+    )
+
+    model = LSTMClassifier(
+        input_size=X_train.shape[1],
+        hidden_size=512,
+        num_layers=4,
+        batch_size=batch_size,
+        stateful=True,
+        class_weights=class_weights,
+    )
+
+    model_checkpoint = pl.callbacks.ModelCheckpoint(
+        monitor="val_loss",
+        dirpath="dumps",
+        filename="PL-{epoch}-{val_loss:.3f}-{train_loss:.3f}",
+    )
+    callbacks = [model_checkpoint]
+
+    if early_stop:
+        callbacks.append(pl.callbacks.EarlyStopping("val_loss", patience=5))
+
+    # Initialize a trainer
+    trainer = pl.Trainer(gpus=gpus, max_epochs=max_epochs, callbacks=callbacks)
+
+    # Train the model ⚡
+    trainer.fit(model, train_dataloader, val_dataloader)
+
+    # Create the test sequences. TODO Is this correct?
+    test_sequences = create_examples(
+        np.concatenate((X_train[-seq_length:, :], X_test), axis=0),
+        np.concatenate((y_train[-seq_length:], y_test), axis=0),
+        seq_length,
+    )
+
+    test_dataloader = DataLoader(
+        SequenceDataset(test_sequences), batch_size=batch_size, shuffle=False
+    )
+
+    # Load the model and predict the test set
+    best_model = LSTMClassifier.load_from_checkpoint(
+        model_checkpoint.best_model_path
+    ).eval()
+
+    with torch.no_grad():
+        y_preds = list()
+
+        for batch in test_dataloader:
+            X, y = batch
+            out = best_model(X)
+            y_preds.append(out.argmax(-1))  # batch x 1
+
+        y_preds = torch.cat(y_preds).squeeze(-1).numpy()
+
+    y_preds = torchlabels_to_labels(y_preds)
+
+    return y_preds

@@ -15,6 +15,7 @@ from statistics import stdev
 from pandas_datareader import data
 import datetime as dt
 import argparse
+from collections import Counter
 
 from pandas import read_csv
 from sklearn.model_selection import train_test_split
@@ -272,6 +273,7 @@ def main():
     parser.add_argument("--seq_length", type=int, default=10)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--max_epochs", type=int, default=30)
+    parser.add_argument("--early_stop", action="store_true")
     parser.add_argument("--gpus", type=int, default=0)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
@@ -338,6 +340,9 @@ def main():
     y_train = tmp.head(training_days_number)["Labels"].to_numpy()
     y_test = tmp.tail(trading_days_number)["Labels"].to_numpy()
 
+    print("Labels distribution in TRAIN:", Counter(y_train))
+    print("Labels distribution in TEST:", Counter(y_test))
+
     tmp = x.head(training_days_number + trading_days_number)
     X_train = tmp.head(training_days_number)
     X_test = tmp.tail(trading_days_number)
@@ -369,15 +374,15 @@ def main():
         y_pred = lstm.train_and_test_lstm(
             X_train.values,
             y_train,
+            X_test.values,
+            y_test,
             args.seq_length,
             args.batch_size,
             args.max_epochs,
             args.gpus,
             args.seed,
+            args.early_stop,
         )
-
-        exit()
-        # y_pred = lstm.test_lstm(X_test)
 
     else:
         # training, validation and test
@@ -394,9 +399,10 @@ def main():
         gs.fit(X_train, y_train)
         y_pred = gs.predict(X_test)
         estimator = gs.best_estimator_
+        print("Best setup from validation:", estimator)
 
     print("SIMULATION ON:", args.cryptocurrency, args.classifier, args.labels)
-    print("Best setup from validation:", estimator)
+
     acc = accuracy_score(y_test, y_pred)
     print("Weighted accuracy:", acc)
     f1 = f1_score(y_test, y_pred, average="weighted")
