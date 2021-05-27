@@ -37,16 +37,17 @@ class LSTMClassifier(pl.LightningModule):
 
         if stateful:
             self.hidden = self.init_hidden()
-            self.last_hidden = self.hidden.detach()
 
         self.loss_fct = nn.CrossEntropyLoss(weight=class_weights)
 
         self.val_F1 = tm.F1(num_classes=3, average="weighted")
         self.val_acc = tm.Accuracy(num_classes=3, average="weighted")
 
+    def save_last_hidden(self):
+        self.last_hidden = (self.hidden[0].detach(), self.hidden[1].detach())
+
     def init_hidden(self):
         #  save last hidden states right before wiping them
-        self.last_hidden = self.hidden.detach()
         return (
             torch.zeros(
                 self.hparams.num_layers * self.num_directions,
@@ -61,14 +62,15 @@ class LSTMClassifier(pl.LightningModule):
         )
 
     def forward(self, inputs):
-        if self.stateful:
+        if self.hparams.stateful and getattr(self, "hidden", None):
+            #  TODO this won't work if the batch_size is not a dividend of the dataset length
             out, (h_n, c_n) = self.lstm(inputs, self.hidden)
         else:
             out, (h_n, c_n) = self.lstm(inputs)
 
         # keep states between batches
         if self.hparams.stateful:
-            self.hidden = (h_n, c_n)
+            self.hidden = (h_n.detach(), c_n.detach())
 
         batch_size = inputs.shape[0]
         h_n = h_n.view(
@@ -113,10 +115,12 @@ class LSTMClassifier(pl.LightningModule):
 
     def training_epoch_end(self, outputs):
         if self.hparams.stateful:
+            self.save_last_hidden()
             self.hidden = self.init_hidden()
 
     def validation_epoch_end(self, outputs):
         if self.hparams.stateful:
+            self.save_last_hidden()
             self.hidden = self.init_hidden()
 
     def configure_optimizers(self):
@@ -177,6 +181,7 @@ def train_and_test_lstm(
     gpus,
     seed,
     early_stop,
+    stateful,
 ):
     if not os.path.exists("dumps"):
         os.mkdir("dumps")
@@ -206,7 +211,7 @@ def train_and_test_lstm(
         hidden_size=512,
         num_layers=4,
         batch_size=batch_size,
-        stateful=True,
+        stateful=stateful,
         class_weights=class_weights,
     )
 

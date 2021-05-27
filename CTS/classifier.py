@@ -276,6 +276,7 @@ def main():
     parser.add_argument("--early_stop", action="store_true")
     parser.add_argument("--gpus", type=int, default=0)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--stateful", action="store_true")
     args = parser.parse_args()
 
     FeaturesFileNames = [
@@ -382,6 +383,7 @@ def main():
             args.gpus,
             args.seed,
             args.early_stop,
+            args.stateful,
         )
 
     else:
