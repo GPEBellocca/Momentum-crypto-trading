@@ -18,6 +18,7 @@ class LSTMClassifier(pl.LightningModule):
         num_layers,
         batch_size,
         learning_rate,
+        reduce_lr=False,
         bidirectional=False,
         stateful=False,
         class_weights=None,
@@ -31,7 +32,12 @@ class LSTMClassifier(pl.LightningModule):
         self.save_hyperparameters()
 
         self.lstm = nn.LSTM(
-            input_size, hidden_size, num_layers, dropout=0.1, batch_first=True
+            input_size,
+            hidden_size,
+            num_layers,
+            dropout=0.1,
+            batch_first=True,
+            bidirectional=bidirectional,
         )
         self.dropout = nn.Dropout(0.1)
         self.linear = nn.Linear(hidden_size, 3)
@@ -129,7 +135,17 @@ class LSTMClassifier(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
-        return optimizer
+
+        if self.hparams.reduce_lr:
+            return {
+                "optimizer": optimizer,
+                "lr_scheduler": {
+                    "scheduler": torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer),
+                    "monitor": "val_loss",
+                },
+            }
+        else:
+            return optimizer
 
 
 def labels_to_torchlabels(labels):
@@ -222,7 +238,7 @@ def train_and_test_lstm(
         batch_size=batch_size,
         stateful=stateful,
         class_weights=class_weights,
-        learning_rate=4e-3,
+        learning_rate=2e-5,
     )
 
     model_checkpoint = pl.callbacks.ModelCheckpoint(
