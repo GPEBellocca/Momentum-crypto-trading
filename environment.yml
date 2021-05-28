@@ -13,3 +13,4 @@ dependencies:
     - scikit-learn
     - pandas_datareader
     - torchmetrics
+    - imbalanced-learn

@@ -270,6 +270,11 @@ def main():
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
     parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
+
+    # parameters for preprocessing
+    parser.add_argument("--oversampling", action="store_true")
+
+    # parameters for LSTM
     parser.add_argument("--seq_length", type=int, default=10)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--max_epochs", type=int, default=30)
@@ -371,11 +376,19 @@ def main():
     del X_train["Date"]
     del X_test["Date"]
 
+    # return to numpy arrays
+    X_train = X_train.values
+    X_test = X_test.values
+
+    # Oversampling with ADASYN
+    if args.oversampling:
+        X_train, y_train = oversample(X_train, y_train)
+
     if args.classifier == Classifier.LSTM:
         y_pred = lstm.train_and_test_lstm(
-            X_train.values,
+            X_train,
             y_train,
-            X_test.values,
+            X_test,
             y_test,
             args.seq_length,
             args.batch_size,
@@ -434,6 +447,13 @@ def main():
     result.to_csv(path, index=False)
 
     return
+
+
+def oversample(X_train, y_train):
+    from imblearn.over_sampling import ADASYN, SMOTE
+
+    print("Running oversampling with ADASYN")
+    return SMOTE().fit_resample(X_train, y_train)
 
 
 if __name__ == "__main__":

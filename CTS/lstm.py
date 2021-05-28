@@ -17,6 +17,7 @@ class LSTMClassifier(pl.LightningModule):
         hidden_size,
         num_layers,
         batch_size,
+        learning_rate,
         bidirectional=False,
         stateful=False,
         class_weights=None,
@@ -36,7 +37,9 @@ class LSTMClassifier(pl.LightningModule):
         self.linear = nn.Linear(hidden_size, 3)
 
         if stateful:
-            self.hidden = self.init_hidden()
+            h_n, c_n = self.init_hidden()
+            self.register_buffer("hidden_h_n", h_n)
+            self.register_buffer("hidden_c_n", c_n)
 
         self.loss_fct = nn.CrossEntropyLoss(weight=class_weights)
 
@@ -44,7 +47,7 @@ class LSTMClassifier(pl.LightningModule):
         self.val_acc = tm.Accuracy(num_classes=3, average="weighted")
 
     def save_last_hidden(self):
-        self.last_hidden = (self.hidden[0].detach(), self.hidden[1].detach())
+        self.last_hidden = (self.hidden_h_n.detach(), self.hidden_c_n.detach())
 
     def init_hidden(self):
         #  save last hidden states right before wiping them
@@ -64,13 +67,14 @@ class LSTMClassifier(pl.LightningModule):
     def forward(self, inputs):
         if self.hparams.stateful and getattr(self, "hidden", None):
             #  TODO this won't work if the batch_size is not a dividend of the dataset length
-            out, (h_n, c_n) = self.lstm(inputs, self.hidden)
+            out, (h_n, c_n) = self.lstm(inputs, (self.hidden_h_n, self.hidden_c_n))
         else:
             out, (h_n, c_n) = self.lstm(inputs)
 
         # keep states between batches
         if self.hparams.stateful:
-            self.hidden = (h_n.detach(), c_n.detach())
+            self.hidden_h_n = h_n.detach()
+            self.hidden_c_n = c_n.detach()
 
         batch_size = inputs.shape[0]
         h_n = h_n.view(
@@ -116,15 +120,15 @@ class LSTMClassifier(pl.LightningModule):
     def training_epoch_end(self, outputs):
         if self.hparams.stateful:
             self.save_last_hidden()
-            self.hidden = self.init_hidden()
+            self.hidden_h_n, self.hidden_c_n = self.init_hidden()
 
     def validation_epoch_end(self, outputs):
         if self.hparams.stateful:
             self.save_last_hidden()
-            self.hidden = self.init_hidden()
+            self.hidden_h_n, self.hidden_c_n = self.init_hidden()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=2e-5)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
         return optimizer
 
 
@@ -156,7 +160,9 @@ def get_class_weights(labels):
     class_weights = list()
     for c in sorted(list(counter.keys())):
         class_weights.append(1 - counter[c] / len(labels))
-    return torch.tensor(class_weights, dtype=torch.float)
+
+    weights = torch.tensor(class_weights, dtype=torch.float)
+    return weights
 
 
 class SequenceDataset(Dataset):
@@ -191,6 +197,9 @@ def train_and_test_lstm(
     # use only labels >= 0
     y_train = labels_to_torchlabels(y_train)
     class_weights = get_class_weights(y_train)
+
+    # TODO can we modify class weights in a better way?
+
     print("Class weights computed:", class_weights)
 
     # create the sequences for LSTM
@@ -213,6 +222,7 @@ def train_and_test_lstm(
         batch_size=batch_size,
         stateful=stateful,
         class_weights=class_weights,
+        learning_rate=4e-3,
     )
 
     model_checkpoint = pl.callbacks.ModelCheckpoint(
@@ -226,7 +236,9 @@ def train_and_test_lstm(
         callbacks.append(pl.callbacks.EarlyStopping("val_loss", patience=5))
 
     # Initialize a trainer
-    trainer = pl.Trainer(gpus=gpus, max_epochs=max_epochs, callbacks=callbacks)
+    trainer = pl.Trainer(
+        gpus=gpus, max_epochs=max_epochs, callbacks=callbacks, auto_lr_find=True
+    )
 
     # Train the model ⚡
     trainer.fit(model, train_dataloader, val_dataloader)
