@@ -1,5 +1,6 @@
 from lstm import create_examples
-from config import Classifier, Cryptocurrency, LABELS
+from config import Classifier, Cryptocurrency, LABELS, PARAM_GRIDS
+import os
 import pandas as pd
 import datetime as dt
 from pandas_datareader import data
@@ -275,13 +276,20 @@ def main():
     parser.add_argument("--oversampling", action="store_true")
 
     # parameters for LSTM
-    parser.add_argument("--seq_length", type=int, default=10)
+    parser.add_argument("--seq_length", type=int, default=5)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--max_epochs", type=int, default=30)
-    parser.add_argument("--early_stop", action="store_true")
+    parser.add_argument(
+        "--lr",
+        type=float,
+        default=2e-5,
+    )
+    parser.add_argument("--early_stop", type=int, default=0)
     parser.add_argument("--gpus", type=int, default=0)
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--stateful", action="store_true")
+    parser.add_argument("--reduce_lr", type=int, default=0)
+
     args = parser.parse_args()
 
     FeaturesFileNames = [
@@ -390,9 +398,12 @@ def main():
             y_train,
             X_test,
             y_test,
+            args.labels,
             args.seq_length,
             args.batch_size,
             args.max_epochs,
+            args.lr,
+            args.reduce_lr,
             args.gpus,
             args.seed,
             args.early_stop,
@@ -417,13 +428,16 @@ def main():
         print("Best setup from validation:", estimator)
 
     print("SIMULATION ON:", args.cryptocurrency, args.classifier, args.labels)
-
-    acc = accuracy_score(y_test, y_pred)
-    print("Weighted accuracy:", acc)
-    f1 = f1_score(y_test, y_pred, average="weighted")
-    print("f1 weighted:", f1)
-    print("Classiifcation report:")
+    print("Classification report:")
+    class_report = classification_report(y_test, y_pred, output_dict=True)
+    print(class_report)
     print(classification_report(y_test, y_pred))
+
+    if args.labels == 3:
+        print(
+            "Average F1 score (-1, 1):",
+            (class_report["-1"]["f1-score"] + class_report["1"]["f1-score"]) / 2,
+        )
 
     result = pd.DataFrame()
     result["Date"] = reversed_dates["Date"]
@@ -431,22 +445,21 @@ def main():
     result["Forecast"] = y_pred
 
     result = compute_correctness(result)
-    path = "./data/labels_datasets/"
-    path = (
-        path
-        + str(args.cryptocurrency)
-        + "_"
-        + "labels"
-        + "_"
-        + str(args.classifier)
-        + "_"
-        + str(args.labels)
-        + ".csv"
-    )
-    # result.to_excel(path, index = False)
-    result.to_csv(path, index=False)
 
-    return
+    filename = (
+        f"{str(args.cryptocurrency)}_labels_{str(args.classifier)}_{str(args.labels)}_{args.seed}.csv"
+        if args.seed is not None
+        else f"{str(args.cryptocurrency)}_labels_{str(args.classifier)}_{str(args.labels)}.csv"
+    )
+
+    # result.to_excel(path, index = False)
+    result.to_csv(os.path.join("data", "labels_datasets", filename), index=False)
+
+    out_dir = os.path.join("results", "classification")
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    pd.DataFrame(class_report).to_csv(os.path.join(out_dir, filename))
 
 
 def oversample(X_train, y_train):

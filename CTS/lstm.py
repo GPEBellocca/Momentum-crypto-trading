@@ -16,6 +16,7 @@ class LSTMClassifier(pl.LightningModule):
         input_size,
         hidden_size,
         num_layers,
+        num_classes,
         batch_size,
         learning_rate,
         reduce_lr=False,
@@ -40,7 +41,11 @@ class LSTMClassifier(pl.LightningModule):
             bidirectional=bidirectional,
         )
         self.dropout = nn.Dropout(0.1)
-        self.linear = nn.Linear(hidden_size, 3)
+
+        if bidirectional:
+            self.linear = nn.Linear(hidden_size * 2, num_classes)
+        else:
+            self.linear = nn.Linear(hidden_size, num_classes)
 
         if stateful:
             h_n, c_n = self.init_hidden()
@@ -49,8 +54,8 @@ class LSTMClassifier(pl.LightningModule):
 
         self.loss_fct = nn.CrossEntropyLoss(weight=class_weights)
 
-        self.val_F1 = tm.F1(num_classes=3, average="weighted")
-        self.val_acc = tm.Accuracy(num_classes=3, average="weighted")
+        self.val_F1 = tm.F1(num_classes=num_classes, average="weighted")
+        self.val_acc = tm.Accuracy(num_classes=num_classes, average="weighted")
 
     def save_last_hidden(self):
         self.last_hidden = (self.hidden_h_n.detach(), self.hidden_c_n.detach())
@@ -83,18 +88,30 @@ class LSTMClassifier(pl.LightningModule):
             self.hidden_c_n = c_n.detach()
 
         batch_size = inputs.shape[0]
-        h_n = h_n.view(
-            self.hparams.num_layers,
-            self.num_directions,
-            batch_size,
-            self.hparams.hidden_size,
-        )
 
-        # use only the last output
-        last_hidden = h_n[-1, :, :]
-        last_hidden = last_hidden.transpose(0, 1).squeeze(1)
-        last_hidden = self.dropout(last_hidden)
-        out = self.linear(last_hidden)
+        if self.num_directions == 1:
+            h_n = h_n.view(
+                self.hparams.num_layers,
+                self.num_directions,
+                batch_size,
+                self.hparams.hidden_size,
+            )
+
+            # use only the last output
+            last_hidden = h_n[-1, :, :]
+            last_hidden = last_hidden.transpose(0, 1).squeeze(1)
+            last_hidden = self.dropout(last_hidden)
+            out = self.linear(last_hidden)
+        else:
+            h_n = h_n.view(
+                self.hparams.num_layers,
+                batch_size,
+                self.hparams.hidden_size * 2,
+            )
+            # use only the last output
+            last_hidden = h_n[-1, :, :]
+            last_hidden = self.dropout(last_hidden)
+            out = self.linear(last_hidden)
 
         return out
 
@@ -136,11 +153,13 @@ class LSTMClassifier(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
 
-        if self.hparams.reduce_lr:
+        if self.hparams.reduce_lr > 0:
             return {
                 "optimizer": optimizer,
                 "lr_scheduler": {
-                    "scheduler": torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer),
+                    "scheduler": torch.optim.lr_scheduler.ReduceLROnPlateau(
+                        optimizer, patience=self.hparams.reduce_lr
+                    ),
                     "monitor": "val_loss",
                 },
             }
@@ -197,9 +216,12 @@ def train_and_test_lstm(
     y_train: np.array,
     X_test: np.array,
     y_test: np.array,
+    num_classes,
     seq_length,
     batch_size,
     max_epochs,
+    lr,
+    reduce_lr,
     gpus,
     seed,
     early_stop,
@@ -208,13 +230,15 @@ def train_and_test_lstm(
     if not os.path.exists("dumps"):
         os.mkdir("dumps")
 
-    pl.seed_everything(seed, workers=True)
+    pl.seed_everything(seed)
 
     # use only labels >= 0
     y_train = labels_to_torchlabels(y_train)
     class_weights = get_class_weights(y_train)
 
     # TODO can we modify class weights in a better way?
+    # class_weights[0] *= 2
+    # class_weights[2] *= 2
 
     print("Class weights computed:", class_weights)
 
@@ -222,7 +246,9 @@ def train_and_test_lstm(
     sequences = create_examples(X_train, y_train, seq_length)
 
     # use 20% of the training set for validation
-    train, val = train_test_split(sequences, train_size=0.8)
+    train, val = train_test_split(
+        sequences, train_size=0.9, shuffle=False, random_state=42
+    )
 
     train_dataloader = DataLoader(
         SequenceDataset(train), batch_size=batch_size, shuffle=False
@@ -234,11 +260,14 @@ def train_and_test_lstm(
     model = LSTMClassifier(
         input_size=X_train.shape[1],
         hidden_size=512,
-        num_layers=4,
+        num_layers=2,
+        num_classes=num_classes,
         batch_size=batch_size,
         stateful=stateful,
         class_weights=class_weights,
-        learning_rate=2e-5,
+        learning_rate=lr,
+        reduce_lr=reduce_lr,
+        bidirectional=False,
     )
 
     model_checkpoint = pl.callbacks.ModelCheckpoint(
@@ -248,8 +277,8 @@ def train_and_test_lstm(
     )
     callbacks = [model_checkpoint]
 
-    if early_stop:
-        callbacks.append(pl.callbacks.EarlyStopping("val_loss", patience=5))
+    if early_stop > 0:
+        callbacks.append(pl.callbacks.EarlyStopping("val_loss", patience=early_stop))
 
     # Initialize a trainer
     trainer = pl.Trainer(
