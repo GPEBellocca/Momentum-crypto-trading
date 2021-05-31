@@ -446,10 +446,8 @@ def main():
 
     result = compute_correctness(result)
 
-    filename = (
-        f"{str(args.cryptocurrency)}_labels_{str(args.classifier)}_{str(args.labels)}_{args.seed}.csv"
-        if args.seed is not None
-        else f"{str(args.cryptocurrency)}_labels_{str(args.classifier)}_{str(args.labels)}.csv"
+    filename = get_filename(
+        str(args.cryptocurrency), str(args.classifier), str(args.labels), args.seed
     )
 
     # result.to_excel(path, index = False)
@@ -460,6 +458,15 @@ def main():
         os.makedirs(out_dir)
 
     pd.DataFrame(class_report).to_csv(os.path.join(out_dir, filename))
+
+
+def get_filename(crypto, classifier, num_classes, seed):
+    filename = (
+        f"{crypto}_labels_{classifier}_{num_classes}_{seed}.csv"
+        if seed is not None
+        else f"{crypto}_labels_{classifier}_{num_classes}.csv"
+    )
+    return filename
 
 
 def oversample(X_train, y_train):

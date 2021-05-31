@@ -5,10 +5,12 @@ from pandas_datareader import data
 # import matplotlib
 # matplotlib.use('TkAgg')
 # import matplotlib.pyplot as plt
+from classifier import get_filename
 import portfolio_library as tl
 from config import *
 import argparse
 import time
+from os.path import join
 
 
 def compute_trading_statistics(tradingReturn, typeOfPosition, crypto):
@@ -61,7 +63,7 @@ def compute_trading_statistics(tradingReturn, typeOfPosition, crypto):
     )
 
 
-def compute_portfolio_statistics(df, classifier, labels):
+def compute_portfolio_statistics(df, classifier, labels, seed=None):
     initial_equity = 1000
     fees = 0.005
     equity = initial_equity
@@ -134,14 +136,25 @@ def compute_portfolio_statistics(df, classifier, labels):
     dfres = pd.DataFrame()
     dfres["Date"] = days
     dfres["Equity"] = equities
-    dfres.to_excel(
-        "./data/portfolio_simulations_equity_trend/"
-        + str(classifier)
-        + "_"
-        + str(labels)
-        + "_equity.xlsx",
-        index=False,
-    )
+
+    if seed is None:
+        dfres.to_excel(
+            "./data/portfolio_simulations_equity_trend/"
+            + str(classifier)
+            + "_"
+            + str(labels)
+            + "_equity.xlsx",
+            index=False,
+        )
+    else:
+        dfres.to_excel(
+            join(
+                "data",
+                "portfolio_simulations_equity_trend",
+                f"{str(classifier)}_{str(labels)}_equity_{seed}.xlsx",
+            ),
+            index=False,
+        )
 
     return equity
 
@@ -189,6 +202,7 @@ def main():
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
     parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
+    parser.add_argument("--seed", default=None)
     args = parser.parse_args()
 
     cryptos = ["BTC", "ETH", "LTC"]
@@ -241,16 +255,10 @@ def main():
                 dfMinute, dfDaily, k, tradingReturn, typeOfPosition, crypto, minutes
             )
         else:
-            # HE + ML
-            dfLabels = tl.readFiles(
-                "./data/labels_datasets/"
-                + str(crypto)
-                + "_labels_"
-                + str(args.classifier)
-                + "_"
-                + str(args.labels)
-                + ".csv"
+            filename = get_filename(
+                crypto, str(args.classifier), args.labels, args.seed
             )
+            dfLabels = tl.readFiles(join("data", "labels_datasets", filename))
             if args.labels == 3:
                 # 3 labels
                 allocations, positions, returns, dates = tl.heml3_trading_v3(
@@ -288,15 +296,17 @@ def main():
 
     print(
         "Final equity: ",
-        compute_portfolio_statistics(dfres, args.classifier, args.labels),
+        compute_portfolio_statistics(dfres, args.classifier, args.labels, args.seed),
     )
+
+    results_filename = (
+        f"results_{str(args.classifier)}_{str(args.labels)}.csv"
+        if args.seed is None
+        else f"results_{str(args.classifier)}_{str(args.labels)}_{args.seed}.csv"
+    )
+
     dfres.to_csv(
-        "./data/portfolio_simulations_results/results_"
-        + str(args.classifier)
-        + "_"
-        + str(args.labels)
-        + ".csv",
-        index=False,
+        join("data", "portfolio_simulations_results", results_filename), index=False
     )
 
     print("END")
