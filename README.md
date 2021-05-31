@@ -21,9 +21,10 @@ but we suppose that better classification ~ better trading).
 The final configuaration chosen is:
 
 - sequence length 7 (days)
-- max epochs 200
+- max epochs 100
 - early stop 10
 - oversampling (balancing classes for training data with SMOTE)
 - lr 2e-5 (constant, no scheduling)
 - num layers 2
 - hidden 512
+- batch size 4096 (the whole dataset fits)

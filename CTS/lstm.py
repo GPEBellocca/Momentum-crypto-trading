@@ -232,8 +232,11 @@ def train_and_test_lstm(
 
     pl.seed_everything(seed)
 
-    # use only labels >= 0
-    y_train = labels_to_torchlabels(y_train)
+    if num_classes == 3:
+        # use only labels >= 0
+        y_train = labels_to_torchlabels(y_train)
+        y_test = labels_to_torchlabels(y_test)
+
     class_weights = get_class_weights(y_train)
 
     # TODO can we modify class weights in a better way?
@@ -314,6 +317,7 @@ def train_and_test_lstm(
 
         y_preds = torch.cat(y_preds).squeeze(-1).numpy()
 
-    y_preds = torchlabels_to_labels(y_preds)
+    if num_classes == 3:
+        y_preds = torchlabels_to_labels(y_preds)
 
     return y_preds

@@ -16,9 +16,9 @@ for crypto in BTC ETH LTC; do
                 $labels \
                 $start_date \
                 $end_date \
-                --seq_lengh 10 \
+                --seq_length 7 \
                 --seed $seed \
-                --max_epochs 200 \
+                --max_epochs 100 \
                 --early_stop 10 \
                 --batch_size 4096 \
                 --gpus 1 \
