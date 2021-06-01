@@ -10,7 +10,8 @@ import portfolio_library as tl
 from config import *
 import argparse
 import time
-from os.path import join
+from os.path import join, exists
+import os
 
 
 def compute_trading_statistics(tradingReturn, typeOfPosition, crypto):
@@ -309,9 +310,13 @@ def main():
         join("data", "portfolio_simulations_results", results_filename), index=False
     )
 
+    out_dir = join("results", "trading")
+    if not exists(out_dir):
+        os.makedirs(out_dir)
+
     # save also the sum on trading positions
     dfres.drop("Dates", axis=1).sum().to_csv(
-        join("data", "portfolio_simulations_results", f"sum_{results_filename}"),
+        join(out_dir, f"sum_{results_filename}"),
         index=True,
     )
 

@@ -14,7 +14,7 @@ for labels in 3 2; do
             $labels \
             $start_date \
             $end_date \
-            --seed $seed \
+            --seed $seed
 
     done
 done
