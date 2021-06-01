@@ -388,7 +388,7 @@ def main():
     X_train = X_train.values
     X_test = X_test.values
 
-    # Oversampling with ADASYN
+    # Oversampling with SMOTE/ADASYN
     if args.oversampling:
         X_train, y_train = oversample(X_train, y_train)
 
@@ -472,7 +472,7 @@ def get_filename(crypto, classifier, num_classes, seed):
 def oversample(X_train, y_train):
     from imblearn.over_sampling import ADASYN, SMOTE
 
-    print("Running oversampling with ADASYN")
+    print("Running oversampling with SMOTE")
     return SMOTE().fit_resample(X_train, y_train)
 
 
