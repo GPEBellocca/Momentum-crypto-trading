@@ -309,6 +309,12 @@ def main():
         join("data", "portfolio_simulations_results", results_filename), index=False
     )
 
+    # save also the sum on trading positions
+    dfres.drop("Dates", axis=1).sum().to_csv(
+        join("data", "portfolio_simulations_results", f"sum_{results_filename}"),
+        index=True,
+    )
+
     print("END")
 
 
