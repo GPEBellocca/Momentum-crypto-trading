@@ -37,6 +37,8 @@ PARAM_GRIDS = {
         "criterion": ["gini", "entropy"],
         "min_samples_split": [0.01, 0.05],
         "min_samples_leaf": [0.005, 0.01],
+        "max_depth": [None, 5, 10, 20],
+        "class_weight": ["balanced", "balanced_subsample"],
     },
     Classifier.KNN: {
         "weights": ["uniform", "distance"],
@@ -44,11 +46,12 @@ PARAM_GRIDS = {
         "algorithm": ["ball_tree", "kd_tree"],
     },
     Classifier.MLP: {
-        "hidden_layer_sizes": [(10,), (30,), (10, 10)],
+        "hidden_layer_sizes": [(10,), (30,), (10, 10), (512), (512, 256)],
         "activation": ["relu", "logistic", "tanh"],
         "solver": ["lbfgs", "sgd", "adam"],
         "learning_rate": ["constant", "invscaling"],
-        "learning_rate_init": [0.0001, 0.001, 0.01, 0.1],
+        "learning_rate_init": [2e-5, 1e-4, 1e-5, 1e-2, 1e-1],
+        "tol": [1e-4, 1e-5],
     },
     Classifier.SVC: {
         "kernel": ["linear", "poly", "rbf"],
@@ -64,9 +67,9 @@ PARAM_GRIDS = {
     Classifier.MNB: {"alpha": [0.01, 0.1, 1, 10]},
     Classifier.GNB: {},
     Classifier.LG: {
-        "solver": ["newton-cg", "lbfgs", "liblinear"],
+        "solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
         "penalty": ["l1", "l2"],
-        "C": [0.01, 0.1, 1, 10],
+        "C": [1e-4, 1e-3, 1e-2, 1e-1, 1, 10],
     },
 }
 

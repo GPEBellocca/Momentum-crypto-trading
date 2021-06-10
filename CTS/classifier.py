@@ -1,4 +1,3 @@
-from lstm import create_examples
 from config import Classifier, Cryptocurrency, LABELS, PARAM_GRIDS
 import os
 import pandas as pd
@@ -31,13 +30,14 @@ from sklearn.exceptions import ConvergenceWarning
 from sklearn.metrics import f1_score, accuracy_score, balanced_accuracy_score
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import classification_report
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.linear_model import LogisticRegression
 
 import lstm
+from lstm import create_examples
 
 
 def create_df_parameters(df):
@@ -174,25 +174,32 @@ def compute_correctness(df):
 """--------------------------------------------"""
 
 
-def get_classifier_and_grid(classifier):
+def get_classifier_and_grid(classifier, seed=42):
+    MAX_ITER = 10000
+    N_JOBS = -1
+
     if classifier == Classifier.KNN:
-        clf = KNeighborsClassifier(n_jobs=-1)
+        clf = KNeighborsClassifier(n_jobs=N_JOBS)
     elif classifier == Classifier.RFC:
-        clf = RandomForestClassifier(
-            n_jobs=-1, n_estimators=200, random_state=42, class_weight="balanced"
-        )
+        clf = RandomForestClassifier(n_jobs=N_JOBS, n_estimators=300, random_state=seed)
     elif classifier == Classifier.SVC:
-        clf = SVC(gamma="scale", random_state=42, class_weight="balanced")
+        clf = SVC(gamma="scale", random_state=seed, class_weight="balanced")
     elif classifier == Classifier.MLP:
         clf = MLPClassifier(
-            random_state=42, max_iter=10000, early_stopping=True, n_iter_no_change=3
+            random_state=seed,
+            max_iter=MAX_ITER,
+            early_stopping=True,
+            n_iter_no_change=10,
+            batch_size=4096,  #  the whole dataset should fits
         )
     elif classifier == Classifier.MNB:
         clf = MultinomialNB()
     elif classifier == Classifier.GNB:
         clf = GaussianNB()
     elif classifier == Classifier.LG:
-        clf = LogisticRegression(random_state=42, class_weight="balanced", n_jobs=-1)
+        clf = LogisticRegression(
+            random_state=seed, class_weight="balanced", n_jobs=N_JOBS, max_iter=MAX_ITER
+        )
     else:
         raise NotImplementedError()
 
@@ -412,20 +419,31 @@ def main():
 
     else:
         # training, validation and test
-        clf, param_grid = get_classifier_and_grid(args.classifier)
-        pipeline = Pipeline([("scaler", StandardScaler()), ("clf", clf)])
+        clf, param_grid = get_classifier_and_grid(args.classifier, args.seed)
+
+        if args.classifier == Classifier.MNB:
+            pipeline = Pipeline([("scaler", MinMaxScaler()), ("clf", clf)])
+        else:
+            pipeline = Pipeline([("scaler", StandardScaler()), ("clf", clf)])
+
         param_grid = {f"clf__{k}": v for k, v in param_grid.items()}
         gs = GridSearchCV(
             pipeline,
             param_grid=param_grid,
-            scoring="f1_weighted",
+            scoring="f1_macro",
             n_jobs=-1,
             cv=TimeSeriesSplit(n_splits=5),
+            error_score=-1,
         )
         gs.fit(X_train, y_train)
         y_pred = gs.predict(X_test)
         estimator = gs.best_estimator_
-        print("Best setup from validation:", estimator)
+        print("Best setup from validation:", estimator.named_steps["clf"])
+        with open(f"best_config_{args.classifier}.txt", "a") as fp:
+            fp.write(str(estimator.named_steps["clf"]) + "\n")
+
+        if args.classifier == Classifier.KNN:
+            print("KNN K:", estimator.named_steps["clf"].n_neighbors)
 
     print("SIMULATION ON:", args.cryptocurrency, args.classifier, args.labels)
     print("Classification report:")
@@ -449,6 +467,7 @@ def main():
     filename = get_filename(
         str(args.cryptocurrency), str(args.classifier), str(args.labels), args.seed
     )
+    print("Filename", filename)
 
     # result.to_excel(path, index = False)
     result.to_csv(os.path.join("data", "labels_datasets", filename), index=False)
@@ -457,7 +476,9 @@ def main():
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    pd.DataFrame(class_report).to_csv(os.path.join(out_dir, filename))
+    pd.DataFrame(class_report).to_csv(
+        os.path.join(out_dir, filename), index_label="metric"
+    )
 
 
 def get_filename(crypto, classifier, num_classes, seed):
