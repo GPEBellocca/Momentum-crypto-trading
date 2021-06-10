@@ -73,35 +73,30 @@ PARAM_GRIDS = {
     },
 }
 
-"""
-PARAMS = {
+# Hyper-params chosen after manual grid search and optimization
+HPARAMS = {
+    Classifier.SVC: {"kernel": "poly", "degree": 4, "C": 1},
     Classifier.RFC: {
-        'criterion': 'gini',
-        'min_samples_split': 0.01,
-        'min_samples_leaf': 0.005
+        "criterion": "entropy",
+        "min_samples_split": 0.01,
+        "min_samples_leaf": 0.005,
+        "max_depth": 10,
+        "class_weight": "balanced_subsample",
     },
-    Classifier.KNN: {
-        'weights': 'distance',
-        'n_neighbors': 3,
-        'algorithm': 'ball_tree'
+    Classifier.LG: {
+        "solver": "liblinear",
+        "penalty": "l1",
+        "class_weight": "balanced",
+        "C": 1,
     },
+    Classifier.KNN: {"weights": "uniform", "n_neighbors": 3, "algorithm": "ball_tree"},
     Classifier.MLP: {
-        'hidden_layer_sizes': (10,10),
-        'activation': 'logistic',
-        'solver': 'lbfgs',
-        'learning_rate': 'constant',
-        'learning_rate_init': 0.0001
+        "hidden_layer_sizes": (10, 10),
+        "activation": "logistic",
+        "solver": "lbfgs",
+        "learning_rate": "constant",
+        "learning_rate_init": 0.0001,
     },
-    Classifier.SVC: {
-        'kernel': 'poly',
-        'degree': 4,
-        'C': 50
-    },
-    Classifier.L3: {
-        'min_sup': 0.005, # [0.005, 0.01, 0.05, 0.1],
-        'min_conf': 0.5,
-        'max_matching': 1,
-        'max_length': 0
+    Classifier.MNB: {"alpha": 10},
+    Classifier.GNB: {},
 }
-}
-"""

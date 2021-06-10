@@ -1,4 +1,4 @@
-from config import Classifier, Cryptocurrency, LABELS, PARAM_GRIDS
+from config import Classifier, Cryptocurrency, LABELS, PARAM_GRIDS, HPARAMS
 import os
 import pandas as pd
 import datetime as dt
@@ -174,16 +174,26 @@ def compute_correctness(df):
 """--------------------------------------------"""
 
 
-def get_classifier_and_grid(classifier, seed=42):
+def get_classifier(classifier, seed=42, return_grid=False):
+    """Instantiate one of the classifiers tested.
+
+    Set return_grid=True to have the grid of hparams used in the grid search.
+    """
+
     MAX_ITER = 10000
     N_JOBS = -1
 
+    #  set fixed hyperparameters if we don't request the whole grid
+    hparams = dict() if return_grid else HPARAMS[classifier]
+
     if classifier == Classifier.KNN:
-        clf = KNeighborsClassifier(n_jobs=N_JOBS)
+        clf = KNeighborsClassifier(n_jobs=N_JOBS, **hparams)
     elif classifier == Classifier.RFC:
-        clf = RandomForestClassifier(n_jobs=N_JOBS, n_estimators=300, random_state=seed)
+        clf = RandomForestClassifier(
+            n_jobs=N_JOBS, n_estimators=300, random_state=seed, **hparams
+        )
     elif classifier == Classifier.SVC:
-        clf = SVC(gamma="scale", random_state=seed, class_weight="balanced")
+        clf = SVC(gamma="scale", random_state=seed, class_weight="balanced", **hparams)
     elif classifier == Classifier.MLP:
         clf = MLPClassifier(
             random_state=seed,
@@ -191,19 +201,23 @@ def get_classifier_and_grid(classifier, seed=42):
             early_stopping=True,
             n_iter_no_change=10,
             batch_size=4096,  #  the whole dataset should fits
+            **hparams,
         )
     elif classifier == Classifier.MNB:
-        clf = MultinomialNB()
+        clf = MultinomialNB(**hparams)
     elif classifier == Classifier.GNB:
         clf = GaussianNB()
     elif classifier == Classifier.LG:
         clf = LogisticRegression(
-            random_state=seed, class_weight="balanced", n_jobs=N_JOBS, max_iter=MAX_ITER
+            random_state=seed, n_jobs=N_JOBS, max_iter=MAX_ITER, **hparams
         )
     else:
         raise NotImplementedError()
 
-    return clf, PARAM_GRIDS[classifier]
+    if return_grid:
+        return clf, PARAM_GRIDS[classifier]
+    else:
+        return clf
 
 
 def get_cryptocurrency(cryptocurrency):
@@ -296,6 +310,7 @@ def main():
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--stateful", action="store_true")
     parser.add_argument("--reduce_lr", type=int, default=0)
+    parser.add_argument("--do_grid_search", action="store_true")
 
     args = parser.parse_args()
 
@@ -400,6 +415,7 @@ def main():
         X_train, y_train = oversample(X_train, y_train)
 
     if args.classifier == Classifier.LSTM:
+
         y_pred = lstm.train_and_test_lstm(
             X_train,
             y_train,
@@ -418,37 +434,51 @@ def main():
         )
 
     else:
-        # training, validation and test
-        clf, param_grid = get_classifier_and_grid(args.classifier, args.seed)
+        if args.do_grid_search:
+            print("BEGINNING GRID SEARCH")
 
-        if args.classifier == Classifier.MNB:
-            pipeline = Pipeline([("scaler", MinMaxScaler()), ("clf", clf)])
+            clf, param_grid = get_classifier(
+                args.classifier, args.seed, return_grid=True
+            )
+            if args.classifier == Classifier.MNB:
+                pipeline = Pipeline([("scaler", MinMaxScaler()), ("clf", clf)])
+            else:
+                pipeline = Pipeline([("scaler", StandardScaler()), ("clf", clf)])
+
+            param_grid = {f"clf__{k}": v for k, v in param_grid.items()}
+            gs = GridSearchCV(
+                pipeline,
+                param_grid=param_grid,
+                scoring="f1_macro",
+                n_jobs=-1,
+                cv=TimeSeriesSplit(n_splits=5),
+                error_score=-1,
+            )
+            gs.fit(X_train, y_train)
+            y_pred = gs.predict(X_test)
+            estimator = gs.best_estimator_
+            print("Best setup from validation:", estimator.named_steps["clf"])
+            with open(f"best_config_{args.classifier}.txt", "a") as fp:
+                fp.write(str(estimator.named_steps["clf"]) + "\n")
+
+            if args.classifier == Classifier.KNN:
+                print("KNN K:", estimator.named_steps["clf"].n_neighbors)
+
+            print("ENDING GRID SEARCH")
+
         else:
-            pipeline = Pipeline([("scaler", StandardScaler()), ("clf", clf)])
+            clf = get_classifier(args.classifier, args.seed)
+            if args.classifier == Classifier.MNB:
+                pipeline = Pipeline([("scaler", MinMaxScaler()), ("clf", clf)])
+            else:
+                pipeline = Pipeline([("scaler", StandardScaler()), ("clf", clf)])
 
-        param_grid = {f"clf__{k}": v for k, v in param_grid.items()}
-        gs = GridSearchCV(
-            pipeline,
-            param_grid=param_grid,
-            scoring="f1_macro",
-            n_jobs=-1,
-            cv=TimeSeriesSplit(n_splits=5),
-            error_score=-1,
-        )
-        gs.fit(X_train, y_train)
-        y_pred = gs.predict(X_test)
-        estimator = gs.best_estimator_
-        print("Best setup from validation:", estimator.named_steps["clf"])
-        with open(f"best_config_{args.classifier}.txt", "a") as fp:
-            fp.write(str(estimator.named_steps["clf"]) + "\n")
-
-        if args.classifier == Classifier.KNN:
-            print("KNN K:", estimator.named_steps["clf"].n_neighbors)
+            pipeline.fit(X_train, y_train)
+            y_pred = pipeline.predict(X_test)
 
     print("SIMULATION ON:", args.cryptocurrency, args.classifier, args.labels)
     print("Classification report:")
     class_report = classification_report(y_test, y_pred, output_dict=True)
-    print(class_report)
     print(classification_report(y_test, y_pred))
 
     if args.labels == 3:
