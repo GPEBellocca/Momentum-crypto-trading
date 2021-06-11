@@ -100,3 +100,5 @@ HPARAMS = {
     Classifier.MNB: {"alpha": 10},
     Classifier.GNB: {},
 }
+
+DETERMINISTIC = [Classifier.KNN, Classifier.GNB, Classifier.MNB]

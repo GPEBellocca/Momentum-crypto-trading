@@ -38,6 +38,7 @@ from sklearn.linear_model import LogisticRegression
 
 import lstm
 from lstm import create_examples
+import utils
 
 
 def create_df_parameters(df):
@@ -494,7 +495,7 @@ def main():
 
     result = compute_correctness(result)
 
-    filename = get_filename(
+    filename = utils.get_filename(
         str(args.cryptocurrency), str(args.classifier), str(args.labels), args.seed
     )
     print("Filename", filename)
@@ -509,15 +510,6 @@ def main():
     pd.DataFrame(class_report).to_csv(
         os.path.join(out_dir, filename), index_label="metric"
     )
-
-
-def get_filename(crypto, classifier, num_classes, seed):
-    filename = (
-        f"{crypto}_labels_{classifier}_{num_classes}_{seed}.csv"
-        if seed is not None
-        else f"{crypto}_labels_{classifier}_{num_classes}.csv"
-    )
-    return filename
 
 
 def oversample(X_train, y_train):
