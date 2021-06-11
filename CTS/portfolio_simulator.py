@@ -5,13 +5,15 @@ from pandas_datareader import data
 # import matplotlib
 # matplotlib.use('TkAgg')
 # import matplotlib.pyplot as plt
-from classifier import get_filename
 import portfolio_library as tl
 from config import *
 import argparse
 import time
 from os.path import join, exists
 import os
+import numpy as np
+import utils
+import json
 
 
 def compute_trading_statistics(tradingReturn, typeOfPosition, crypto):
@@ -79,6 +81,9 @@ def compute_portfolio_statistics(df, classifier, labels, seed=None):
     days = []
     equities = []
 
+    long_returns = list()
+    short_returns = list()
+
     for i in range(df.shape[0]):
         days.append(df.iloc[i, 0])
         day_counter = day_counter + 1
@@ -99,7 +104,9 @@ def compute_portfolio_statistics(df, classifier, labels, seed=None):
             # print("Reasources allocated each:", resources_allocated)
             equity = 0
             for j in range(1, len(df.columns), 3):
+
                 if df.iloc[i, j] != 0 and df.iloc[i, j + 2] != 0:
+
                     if df.iloc[i, j + 1] > 0:
                         success_pos = success_pos + 1
                     ret = resources_allocated * (1 + df.iloc[i, j + 1] - fees)
@@ -107,8 +114,11 @@ def compute_portfolio_statistics(df, classifier, labels, seed=None):
                     equity = equity + ret
                     if df.iloc[i, j + 2] == 1:
                         long_return = long_return + df.iloc[i, j + 1]
+                        long_returns.append(df.iloc[i, j + 1])
                     elif df.iloc[i, j + 2] == -1:
                         short_return = short_return + df.iloc[i, j + 1]
+                        short_returns.append(df.iloc[i, j + 1])
+
                 elif df.iloc[i, j] != 0 and df.iloc[i, j + 2] == 0:
                     ret = resources_allocated
                     # print("ret:",ret)
@@ -134,34 +144,50 @@ def compute_portfolio_statistics(df, classifier, labels, seed=None):
         "number of day:", day_counter, "avg allocations:", tot_allocations / day_counter
     )
 
+    stats = {
+        "long_pos": long_pos,
+        "short_pos": short_pos,
+        "total_pos": long_pos + short_pos,
+        "success_pos": success_pos,
+        "success_perc": succ_perc,
+        "long_return": long_return,
+        "long_return_mean": np.array(long_returns).mean(),
+        "long_return_std": np.array(long_returns).std(),
+        "short_return": short_return,
+        "short_return_mean": np.array(short_returns).mean(),
+        "short_return_std": np.array(short_returns).std(),
+        "total_return": long_return + short_return,
+        "days": day_counter,
+        "avg allocations": tot_allocations / day_counter,
+    }
+
     dfres = pd.DataFrame()
     dfres["Date"] = days
     dfres["Equity"] = equities
 
     if seed is None:
-        dfres.to_excel(
+        dfres.to_csv(
             "./data/portfolio_simulations_equity_trend/"
             + str(classifier)
             + "_"
             + str(labels)
-            + "_equity.xlsx",
+            + "_equity.csv",
             index=False,
         )
     else:
-        dfres.to_excel(
+        dfres.to_csv(
             join(
                 "data",
                 "portfolio_simulations_equity_trend",
-                f"{str(classifier)}_{str(labels)}_equity_{seed}.xlsx",
+                f"{str(classifier)}_{str(labels)}_equity_{seed}.csv",
             ),
             index=False,
         )
 
-    return equity
+    return equity, stats
 
 
 class Classifier(BaseEnum):
-    L3 = "L3"
     MLP = "MLP"
     RFC = "RFC"
     SVC = "SVC"
@@ -256,7 +282,7 @@ def main():
                 dfMinute, dfDaily, k, tradingReturn, typeOfPosition, crypto, minutes
             )
         else:
-            filename = get_filename(
+            filename = utils.get_filename(
                 crypto, str(args.classifier), args.labels, args.seed
             )
             dfLabels = tl.readFiles(join("data", "labels_datasets", filename))
@@ -295,10 +321,16 @@ def main():
         dfres[str(crypto) + " returns"] = returns
         dfres[str(crypto) + " positions"] = positions
 
-    print(
-        "Final equity: ",
-        compute_portfolio_statistics(dfres, args.classifier, args.labels, args.seed),
+    final_equity, stats = compute_portfolio_statistics(
+        dfres, args.classifier, args.labels, args.seed
     )
+    print("Final equity:", final_equity)
+
+    stats_filename = utils.get_trading_stats_filename(
+        args.classifier, args.labels, args.seed
+    )
+    with open(join("results", "trading", stats_filename), "w") as fp:
+        json.dump(stats, fp)
 
     results_filename = (
         f"results_{str(args.classifier)}_{str(args.labels)}.csv"
@@ -316,8 +348,7 @@ def main():
 
     # save also the sum on trading positions
     dfres.drop("Dates", axis=1).sum().to_csv(
-        join(out_dir, f"sum_{results_filename}"),
-        index=True,
+        join(out_dir, f"sum_{results_filename}"), index=True, index_label="metric"
     )
 
     print("END")

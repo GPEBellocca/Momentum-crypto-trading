@@ -1,6 +1,6 @@
 #!/bin/bash
 
-classifier=LSTM
+classifier=$1
 start_date=2020-01-01
 end_date=2020-12-31
 

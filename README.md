@@ -23,6 +23,7 @@ Models with a single run:
 - GNB
 - MNB
 
+Please find the configuration used for each classifier in [the configuration file](config.py).
 
 ### LSTM
 
