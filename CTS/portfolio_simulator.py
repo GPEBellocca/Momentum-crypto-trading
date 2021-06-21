@@ -227,10 +227,16 @@ def main():
     parser = argparse.ArgumentParser(description="AAA")
     parser.add_argument("classifier", type=Classifier, choices=list(Classifier))
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
+    parser.add_argument("days_window", type=int, help="Number of days used to calculate the thresholds (min = 50)")
+    parser.add_argument("k", type=float, default=0.0, help="Constant for threshold calculation")
     parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
     parser.add_argument("--seed", default=None)
     args = parser.parse_args()
+
+    if args.days_window < 50:
+        print("Error: days window minimum is 50 days")
+        return
 
     cryptos = ["BTC", "ETH", "LTC"]
     dfres = pd.DataFrame()
@@ -242,7 +248,7 @@ def main():
         """ OPEN DATASETS """
         df = tl.readFiles("./data/daily_datasets/" + str(crypto) + "USD.csv")
         x = df.head(
-            df.shape[0] - 365
+            df.shape[0] - args.days_window
         )  # eliminate first 365 obs used to calculate thresholds
         last_date = x.iloc[0, 0]
         first_date = x.iloc[x.shape[0] - 1, 0]
@@ -268,7 +274,7 @@ def main():
         print("Simulation on " + str(crypto))
         tradingReturn = []
         typeOfPosition = []
-        k = 0.5
+        k = args.k
         minutes = 480
 
         returns = []
@@ -279,7 +285,7 @@ def main():
         if args.classifier == Classifier.HE:
             # only HE
             allocations, positions, returns, dates = tl.he_trading_v3(
-                dfMinute, dfDaily, k, tradingReturn, typeOfPosition, crypto, minutes
+                dfMinute, dfDaily, k, tradingReturn, typeOfPosition, crypto, minutes, args.days_window
             )
         else:
             filename = utils.get_filename(
@@ -297,6 +303,7 @@ def main():
                     dfLabels,
                     crypto,
                     minutes,
+                    args.days_window
                 )
                 # allocations, positions, returns, dates = tl.ml3_trading_v3(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes)
             elif args.labels == 2:
@@ -310,6 +317,7 @@ def main():
                     dfLabels,
                     crypto,
                     minutes,
+                    args.days_window
                 )
 
         # compute final results

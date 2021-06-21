@@ -109,7 +109,7 @@ def computeStartingDay(df):
 
 
 #HE strategy minutes v3
-def he_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto,minutes):
+def he_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto,minutes,days_window):
 
     dates = []
     allocations = []
@@ -140,7 +140,7 @@ def he_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto,m
         
         if (dfMinute.iloc[i,0] != current_day):
             current_day = dfMinute.iloc[i,0]
-            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter,days_window)
             dayOpenPrice = dfMinute.iloc[i,3]
             day_counter = day_counter + 1
             positionFlag = 0
@@ -217,7 +217,7 @@ def he_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,crypto,m
     return allocations, positions, returns, dates
 
 #HE + ML 3 labels strategy minutes v3
-def heml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes):
+def heml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes,days_window):
     
     dates = []
     allocations = []
@@ -247,7 +247,7 @@ def heml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLab
         
         if (dfMinute.iloc[i,0] != current_day):
             current_day = dfMinute.iloc[i,0]
-            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter,days_window)
             dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
             dayOpenPrice = dfMinute.iloc[i,3]
             day_counter = day_counter + 1
@@ -325,7 +325,7 @@ def heml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLab
 
 
 #HE + ML 2 labels strategy minutes v3
-def heml2_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes):
+def heml2_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes,days_window):
     
     dates = []
     allocations = []
@@ -355,7 +355,7 @@ def heml2_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLab
         
         if (dfMinute.iloc[i,0] != current_day):
             current_day = dfMinute.iloc[i,0]
-            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter,days_window)
             dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
             dayOpenPrice = dfMinute.iloc[i,3]
             day_counter = day_counter + 1
@@ -433,7 +433,7 @@ def heml2_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLab
 
 
 #ML 3 labels strategy minutes v3
-def ml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes):
+def ml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes, days_window):
     
     dates = []
     allocations = []
@@ -463,7 +463,7 @@ def ml3_trading_v3(dfMinute,dfDailyReturn,k,tradingReturn,typeOfPosition,dfLabel
         
         if (dfMinute.iloc[i,0] != current_day):
             current_day = dfMinute.iloc[i,0]
-            parameters = computeTradingParameters(dfDailyReturn,k,day_counter)
+            parameters = computeTradingParameters(dfDailyReturn,k,day_counter,days_window)
             dailyLabel = getDailyLabel(dfLabels,dfMinute.iloc[i,0])
             dayOpenPrice = dfMinute.iloc[i,3]
             day_counter = day_counter + 1
@@ -1245,13 +1245,13 @@ def computeTradingParameters_window(dfDailyReturn,k, dayCounter):
 
     return parameters
 
-def computeTradingParameters(dfDailyReturn,k, dayCounter):
+def computeTradingParameters(dfDailyReturn,k, dayCounter, days_window):
     parameters = [0.0,0.0,0.0,0.0,0.0,0.0]
     pos = []
     neg = []
     
     
-    for i in range(dfDailyReturn.shape[0]-1-dayCounter,dfDailyReturn.shape[0]-1-dayCounter-365,-1):
+    for i in range(dfDailyReturn.shape[0]-1-dayCounter,dfDailyReturn.shape[0]-1-dayCounter-days_window,-1):
         
         x = dfDailyReturn.iloc[i,1]
         

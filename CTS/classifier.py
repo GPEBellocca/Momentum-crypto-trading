@@ -53,7 +53,7 @@ def create_df_parameters(df):
     return dfres
 
 
-def get_y_3(fileName):
+def get_y_3(fileName,days_window, k):
 
     y = []
     dayCounter = 0
@@ -63,11 +63,11 @@ def get_y_3(fileName):
     df = pd.DataFrame()
     df = pd.read_csv(fileName)
     df_parameters = create_df_parameters(df)
-    df = df.head(df.shape[0] - 365)
+    df = df.head(df.shape[0] - days_window)
 
     for i in range(df.shape[0] - 1, -1, -1):
         # update parameters
-        parameters = computeTradingParameters(df_parameters, dayCounter)
+        parameters = computeTradingParameters(df_parameters, dayCounter, days_window, k)
         dayCounter = dayCounter + 1
 
         # compute the label
@@ -91,7 +91,7 @@ def get_y_3(fileName):
     return y
 
 
-def get_y_2(fileName):
+def get_y_2(fileName, days_window, k):
 
     y = []
     dayCounter = 0
@@ -101,11 +101,11 @@ def get_y_2(fileName):
     df = pd.DataFrame()
     df = pd.read_csv(fileName)
     df_parameters = create_df_parameters(df)
-    df = df.head(df.shape[0] - 365)
+    df = df.head(df.shape[0] - days_window)
 
     for i in range(df.shape[0] - 1, -1, -1):
         # update parameters
-        parameters = computeTradingParameters(df_parameters, dayCounter)
+        parameters = computeTradingParameters(df_parameters, dayCounter, days_window, k)
         dayCounter = dayCounter + 1
 
         # compute the label
@@ -129,15 +129,14 @@ def get_y_2(fileName):
     return y
 
 
-def computeTradingParameters(df_parameters, dayCounter):
+def computeTradingParameters(df_parameters, dayCounter, days_window, k):
     parameters = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    k = 0.5
     pos = []
     neg = []
 
     for i in range(
         df_parameters.shape[0] - 1 - dayCounter,
-        df_parameters.shape[0] - 1 - dayCounter - 365,
+        df_parameters.shape[0] - 1 - dayCounter - days_window,
         -1,
     ):
         x = df_parameters.iloc[i, 1]
@@ -291,6 +290,8 @@ def main():
     )
     parser.add_argument("classifier", type=Classifier, choices=list(Classifier))
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
+    parser.add_argument("days_window", type=int, help="Number of days used to calculate the thresholds (min = 50)")
+    parser.add_argument("k", type=float, default=0.0, help="Constant for threshold calculation")
     parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
 
@@ -315,6 +316,11 @@ def main():
 
     args = parser.parse_args()
 
+
+    if args.days_window < 50:
+        print("Error: days window minimum is 50 days")
+        return
+
     FeaturesFileNames = [
         "./data/features_datasets/BTCUSD_features.csv",
         "./data/features_datasets/ETHUSD_features.csv",
@@ -330,9 +336,9 @@ def main():
     crypto = get_cryptocurrency(args.cryptocurrency)
 
     if args.labels == 2:
-        labels = get_y_2(FileNames[crypto])
+        labels = get_y_2(FileNames[crypto],args.days_window,args.k)
     elif args.labels == 3:
-        labels = get_y_3(FileNames[crypto])
+        labels = get_y_3(FileNames[crypto],args.days_window,args.k)
     else:
         print("Error: wrong number of labels (2 or 3 admitted)")
         return
@@ -343,17 +349,12 @@ def main():
     tmp = pd.read_csv(FeaturesFileNames[crypto])
 
     x = tmp.tail(
-        tmp.shape[0] - 365
-    )  # eliminate first 365 obs used to calculate thresholds
+        tmp.shape[0] - args.days_window
+    )  # eliminate first days_window obs used to calculate thresholds
 
     first_date = x.iloc[0, 0]
     last_date = x.iloc[x.shape[0] - 1, 0]
 
-    """
-    print(x.shape[0], first_date, last_date)
-    print(y, y.shape[0])
-    return
-    """
 
     if check_trading_period(x, args.start_date, args.end_date) == -1:
         print(
