@@ -16,6 +16,8 @@ def main():
     labels = ["3", "2"]
     
     parser = argparse.ArgumentParser(description="AAA")
+    parser.add_argument("days_window", type=int, help="Number of days used to calculate the thresholds (min = 50)")
+    parser.add_argument("k", type=float, default=0.0, help="Constant for threshold calculation")
     parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
     args = parser.parse_args()
@@ -24,7 +26,7 @@ def main():
         for classifier in classifiers:
             for label in labels:
                 print("\n\n *** Classifications details: " + crypto + " " + classifier + " " + label + " ***")
-                call(["python3", "classifier.py", crypto, classifier, label, args.start_date, args.end_date])
+                call(["python3", "classifier.py", crypto, classifier, label,str(args.days_window) ,str(args.k), args.start_date, args.end_date])
 
 
 
