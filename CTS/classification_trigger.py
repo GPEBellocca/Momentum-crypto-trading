@@ -29,7 +29,6 @@ def main():
                 call(["python3", "classifier.py", crypto, classifier, label,str(args.days_window) ,str(args.k), args.start_date, args.end_date])
 
 
-
 if __name__ == "__main__":
     main()
 
