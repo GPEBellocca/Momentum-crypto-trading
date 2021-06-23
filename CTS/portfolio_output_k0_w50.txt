@@ -1,0 +1,645 @@
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  53.57949739938929 % 
+ - Short positions:  30.641945538920734 % 
+-> Total:  84.22144293831002 %
+Number of long position opened:  54
+Number of short position opened:  53
+Total number of positions opened:  107
+Succesfull trades:  62 Percentage on total:  57.943925233644855 %
+
+Simulation on ETH
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  121.53825128598537 % 
+ - Short positions:  40.08329874711685 % 
+-> Total:  161.6215500331022 %
+Number of long position opened:  66
+Number of short position opened:  60
+Total number of positions opened:  126
+Succesfull trades:  77 Percentage on total:  61.111111111111114 %
+
+Simulation on LTC
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  58.80330765130988 % 
+ - Short positions:  30.298677883475854 % 
+-> Total:  89.10198553478573 %
+Number of long position opened:  62
+Number of short position opened:  62
+Total number of positions opened:  124
+Succesfull trades:  58 Percentage on total:  46.774193548387096 %
+
+long pos: 182
+short pos: 175
+total pos: 357
+success pos: 197
+success percentage: 55.182072829131656
+long return: 233.92105633668453
+short return: 101.02392216951333
+total return 334.94497850619786
+number of day: 348 avg allocations: 3.0
+Final equity: 1530.4250794482011
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  13.663030973884826 % 
+ - Short positions:  -10.090951969002038 % 
+-> Total:  3.572079004882789 %
+Number of long position opened:  11
+Number of short position opened:  24
+Total number of positions opened:  35
+Succesfull trades:  17 Percentage on total:  48.57142857142857 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  45.25665759245807 % 
+ - Short positions:  -7.810019469947682 % 
+-> Total:  37.44663812251039 %
+Number of long position opened:  16
+Number of short position opened:  12
+Total number of positions opened:  28
+Succesfull trades:  18 Percentage on total:  64.28571428571429 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  24.33147423798393 % 
+ - Short positions:  -6.242259420585528 % 
+-> Total:  18.089214817398403 %
+Number of long position opened:  17
+Number of short position opened:  11
+Total number of positions opened:  28
+Succesfull trades:  16 Percentage on total:  57.14285714285714 %
+
+long pos: 44
+short pos: 47
+total pos: 91
+success pos: 51
+success percentage: 56.043956043956044
+long return: 83.25116280432682
+short return: -24.143230859535247
+total return 59.10793194479158
+number of day: 348 avg allocations: 1.0833333333333333
+Final equity: 905.0025749001989
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  38.15351522962299 % 
+ - Short positions:  12.07004726197537 % 
+-> Total:  50.22356249159836 %
+Number of long position opened:  38
+Number of short position opened:  26
+Total number of positions opened:  64
+Succesfull trades:  34 Percentage on total:  53.125 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  66.11611274899164 % 
+ - Short positions:  36.077436278947935 % 
+-> Total:  102.19354902793958 %
+Number of long position opened:  26
+Number of short position opened:  23
+Total number of positions opened:  49
+Succesfull trades:  32 Percentage on total:  65.3061224489796 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  50.56673063955017 % 
+ - Short positions:  27.440493396152497 % 
+-> Total:  78.00722403570268 %
+Number of long position opened:  28
+Number of short position opened:  23
+Total number of positions opened:  51
+Succesfull trades:  28 Percentage on total:  54.90196078431373 %
+
+long pos: 92
+short pos: 72
+total pos: 164
+success pos: 94
+success percentage: 57.3170731707317
+long return: 154.83635861816484
+short return: 75.58797693707582
+total return 230.42433555524067
+number of day: 348 avg allocations: 1.0028735632183907
+Final equity: 1296.057129767562
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  7.067730376742132 % 
+ - Short positions:  5.342679195572819 % 
+-> Total:  12.41040957231495 %
+Number of long position opened:  5
+Number of short position opened:  24
+Total number of positions opened:  29
+Succesfull trades:  16 Percentage on total:  55.172413793103445 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  8.67367355762758 % 
+ - Short positions:  7.304124906539855 % 
+-> Total:  15.977798464167437 %
+Number of long position opened:  9
+Number of short position opened:  18
+Total number of positions opened:  27
+Succesfull trades:  14 Percentage on total:  51.85185185185185 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  11.94109831568062 % 
+ - Short positions:  -1.5588787078256505 % 
+-> Total:  10.382219607854971 %
+Number of long position opened:  4
+Number of short position opened:  13
+Total number of positions opened:  17
+Succesfull trades:  9 Percentage on total:  52.94117647058824 %
+
+long pos: 18
+short pos: 55
+total pos: 73
+success pos: 39
+success percentage: 53.42465753424658
+long return: 27.682502250050334
+short return: 11.087925394287023
+total return 38.77042764433736
+number of day: 348 avg allocations: 0.9425287356321839
+Final equity: 956.9969419093128
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  43.084749082207566 % 
+ - Short positions:  -11.437901031736619 % 
+-> Total:  31.646848050470943 %
+Number of long position opened:  27
+Number of short position opened:  30
+Total number of positions opened:  57
+Succesfull trades:  32 Percentage on total:  56.14035087719298 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  25.02364980684637 % 
+ - Short positions:  3.1814384143655894 % 
+-> Total:  28.20508822121196 %
+Number of long position opened:  18
+Number of short position opened:  19
+Total number of positions opened:  37
+Succesfull trades:  22 Percentage on total:  59.45945945945946 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  23.223815747676124 % 
+ - Short positions:  41.627379510388806 % 
+-> Total:  64.85119525806493 %
+Number of long position opened:  21
+Number of short position opened:  20
+Total number of positions opened:  41
+Succesfull trades:  22 Percentage on total:  53.65853658536586 %
+
+long pos: 66
+short pos: 69
+total pos: 135
+success pos: 76
+success percentage: 56.2962962962963
+long return: 91.33221463673006
+short return: 33.37091689301778
+total return 124.70313152974784
+number of day: 348 avg allocations: 0.9425287356321839
+Final equity: 1567.4812096755008
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  10.59034354203301 % 
+ - Short positions:  4.706880672632508 % 
+-> Total:  15.297224214665517 %
+Number of long position opened:  7
+Number of short position opened:  27
+Total number of positions opened:  34
+Succesfull trades:  17 Percentage on total:  50.0 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  31.454417188289696 % 
+ - Short positions:  -14.188311674924659 % 
+-> Total:  17.266105513365037 %
+Number of long position opened:  8
+Number of short position opened:  4
+Total number of positions opened:  12
+Succesfull trades:  7 Percentage on total:  58.333333333333336 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  9.082332001463167 % 
+ - Short positions:  -0.768245838668391 % 
+-> Total:  8.314086162794776 %
+Number of long position opened:  7
+Number of short position opened:  1
+Total number of positions opened:  8
+Succesfull trades:  4 Percentage on total:  50.0 %
+
+long pos: 22
+short pos: 32
+total pos: 54
+success pos: 28
+success percentage: 51.85185185185185
+long return: 51.12709273178587
+short return: -10.249676840960543
+total return 40.87741589082533
+number of day: 348 avg allocations: 0.9281609195402298
+Final equity: 898.2984140315713
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  24.51459263686402 % 
+ - Short positions:  -8.3946101069174 % 
+-> Total:  16.11998252994662 %
+Number of long position opened:  29
+Number of short position opened:  22
+Total number of positions opened:  51
+Succesfull trades:  26 Percentage on total:  50.98039215686274 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  23.502244370767777 % 
+ - Short positions:  39.274506270064954 % 
+-> Total:  62.77675064083274 %
+Number of long position opened:  8
+Number of short position opened:  7
+Total number of positions opened:  15
+Succesfull trades:  9 Percentage on total:  60.0 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  17.628306058695074 % 
+ - Short positions:  27.226886437321816 % 
+-> Total:  44.85519249601689 %
+Number of long position opened:  9
+Number of short position opened:  7
+Total number of positions opened:  16
+Succesfull trades:  8 Percentage on total:  50.0 %
+
+long pos: 46
+short pos: 36
+total pos: 82
+success pos: 43
+success percentage: 52.4390243902439
+long return: 65.64514306632687
+short return: 58.10678260046937
+total return 123.75192566679625
+number of day: 348 avg allocations: 0.6063218390804598
+Final equity: 1387.8811532674604
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  5.127172449872742 % 
+ - Short positions:  -5.0232243061947734 % 
+-> Total:  0.10394814367796767 %
+Number of long position opened:  7
+Number of short position opened:  21
+Total number of positions opened:  28
+Succesfull trades:  13 Percentage on total:  46.42857142857143 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  10.398786940360605 % 
+ - Short positions:  -1.908233326846276 % 
+-> Total:  8.49055361351433 %
+Number of long position opened:  4
+Number of short position opened:  9
+Total number of positions opened:  13
+Succesfull trades:  6 Percentage on total:  46.15384615384615 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  -2.1577784214259266 % 
+ - Short positions:  -1.7452466484521256 % 
+-> Total:  -3.903025069878052 %
+Number of long position opened:  4
+Number of short position opened:  5
+Total number of positions opened:  9
+Succesfull trades:  4 Percentage on total:  44.44444444444444 %
+
+long pos: 15
+short pos: 35
+total pos: 50
+success pos: 23
+success percentage: 46.0
+long return: 13.368180968807419
+short return: -8.676704281493175
+total return 4.691476687314244
+number of day: 348 avg allocations: 0.617816091954023
+Final equity: 776.5561404294342
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  35.73254276517828 % 
+ - Short positions:  22.272995016051123 % 
+-> Total:  58.0055377812294 %
+Number of long position opened:  36
+Number of short position opened:  34
+Total number of positions opened:  70
+Succesfull trades:  40 Percentage on total:  57.14285714285714 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  48.523471502958635 % 
+ - Short positions:  30.87383679671826 % 
+-> Total:  79.3973082996769 %
+Number of long position opened:  20
+Number of short position opened:  21
+Total number of positions opened:  41
+Succesfull trades:  24 Percentage on total:  58.536585365853654 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  37.26619254446312 % 
+ - Short positions:  44.735809946881275 % 
+-> Total:  82.0020024913444 %
+Number of long position opened:  33
+Number of short position opened:  35
+Total number of positions opened:  68
+Succesfull trades:  32 Percentage on total:  47.05882352941176 %
+
+long pos: 89
+short pos: 90
+total pos: 179
+success pos: 96
+success percentage: 53.63128491620112
+long return: 121.52220681260005
+short return: 97.88264175965068
+total return 219.4048485722507
+number of day: 348 avg allocations: 1.1091954022988506
+Final equity: 1350.653673343807
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  0 % 
+ - Short positions:  15.641706304732395 % 
+-> Total:  15.641706304732395 %
+Number of long position opened:  0
+Number of short position opened:  33
+Total number of positions opened:  33
+Succesfull trades:  13 Percentage on total:  39.39393939393939 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  3.8618279235078434 % 
+ - Short positions:  -27.719392377983276 % 
+-> Total:  -23.857564454475433 %
+Number of long position opened:  3
+Number of short position opened:  8
+Total number of positions opened:  11
+Succesfull trades:  3 Percentage on total:  27.27272727272727 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  8.295696254663575 % 
+ - Short positions:  -20.89110018003666 % 
+-> Total:  -12.595403925373084 %
+Number of long position opened:  5
+Number of short position opened:  11
+Total number of positions opened:  16
+Succesfull trades:  8 Percentage on total:  50.0 %
+
+long pos: 8
+short pos: 52
+total pos: 60
+success pos: 24
+success percentage: 40.0
+long return: 12.15752417817142
+short return: -32.96878625328754
+total return -20.811262075116122
+number of day: 348 avg allocations: 0.7471264367816092
+Final equity: 666.4890719303976
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  40.13391075002599 % 
+ - Short positions:  16.902646954352274 % 
+-> Total:  57.03655770437827 %
+Number of long position opened:  36
+Number of short position opened:  26
+Total number of positions opened:  62
+Succesfull trades:  35 Percentage on total:  56.451612903225815 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  36.53363210993474 % 
+ - Short positions:  21.68123339230572 % 
+-> Total:  58.214865502240464 %
+Number of long position opened:  13
+Number of short position opened:  11
+Total number of positions opened:  24
+Succesfull trades:  15 Percentage on total:  62.5 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  34.0892261695396 % 
+ - Short positions:  5.497910823363894 % 
+-> Total:  39.587136992903496 %
+Number of long position opened:  19
+Number of short position opened:  18
+Total number of positions opened:  37
+Succesfull trades:  20 Percentage on total:  54.054054054054056 %
+
+long pos: 68
+short pos: 55
+total pos: 123
+success pos: 70
+success percentage: 56.91056910569105
+long return: 110.75676902950033
+short return: 44.08179117002189
+total return 154.83856019952222
+number of day: 348 avg allocations: 0.6666666666666666
+Final equity: 1143.4576104361513
+END
+Trading period: 2020-01-01 - 2020-12-31
+Simulation on BTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  BTC
+Total trading return by positions: 
+ - Long positions:  7.1045848856184035 % 
+ - Short positions:  -11.91229843356998 % 
+-> Total:  -4.807713547951575 %
+Number of long position opened:  8
+Number of short position opened:  25
+Total number of positions opened:  33
+Succesfull trades:  15 Percentage on total:  45.45454545454545 %
+
+Simulation on ETH
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  ETH
+Total trading return by positions: 
+ - Long positions:  10.824948997851447 % 
+ - Short positions:  0.016877998084641188 % 
+-> Total:  10.841826995936088 %
+Number of long position opened:  13
+Number of short position opened:  20
+Total number of positions opened:  33
+Succesfull trades:  17 Percentage on total:  51.515151515151516 %
+
+Simulation on LTC
+Not found
+Total number of day: 367 Complete days 348
+
+SIMULATION ON  LTC
+Total trading return by positions: 
+ - Long positions:  1.7355149073438048 % 
+ - Short positions:  -9.792731129508404 % 
+-> Total:  -8.057216222164598 %
+Number of long position opened:  10
+Number of short position opened:  14
+Total number of positions opened:  24
+Succesfull trades:  11 Percentage on total:  45.83333333333333 %
+
+long pos: 31
+short pos: 59
+total pos: 90
+success pos: 43
+success percentage: 47.77777777777778
+long return: 19.665048790813657
+short return: -21.688151564993742
+total return -2.0231027741800856
+number of day: 348 avg allocations: 1.396551724137931
+Final equity: 766.6870831861677
+END
