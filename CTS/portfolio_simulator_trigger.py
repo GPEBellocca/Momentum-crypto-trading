@@ -24,7 +24,6 @@ def main():
         for label in labels:
             if classifier == "HE" and label == "2":
                 continue
-            print("\n\n *** Trading details: " + classifier + " " + label + " ***")
             call(["python3", "portfolio_simulator.py", classifier, label,str(args.days_window) ,str(args.k), args.start_date, args.end_date])
 
 

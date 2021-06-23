@@ -241,7 +241,10 @@ def main():
     cryptos = ["BTC", "ETH", "LTC"]
     dfres = pd.DataFrame()
 
+    print("\n\n *** Portfolio simulator *** \n")
+    print("Trading strategy: " + str(args.classifier), str(args.labels))
     print("Trading period: " + args.start_date + " - " + args.end_date)
+    print("\n\n")
 
     for crypto in cryptos:
 
