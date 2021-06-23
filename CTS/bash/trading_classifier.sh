@@ -1,6 +1,9 @@
 #!/bin/bash
 
 classifier=$1
+window=$2
+k=$3
+in_dir=$4
 start_date=2020-01-01
 end_date=2020-12-31
 
@@ -11,7 +14,10 @@ for labels in 3 2; do
         python portfolio_simulator.py \
             $classifier \
             $labels \
+            $window \
+            $k \
             $start_date \
-            $end_date
+            $end_date \
+            $in_dir
 
 done

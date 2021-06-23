@@ -165,26 +165,7 @@ def compute_portfolio_statistics(df, classifier, labels, seed=None):
     dfres["Date"] = days
     dfres["Equity"] = equities
 
-    if seed is None:
-        dfres.to_csv(
-            "./data/portfolio_simulations_equity_trend/"
-            + str(classifier)
-            + "_"
-            + str(labels)
-            + "_equity.csv",
-            index=False,
-        )
-    else:
-        dfres.to_csv(
-            join(
-                "data",
-                "portfolio_simulations_equity_trend",
-                f"{str(classifier)}_{str(labels)}_equity_{seed}.csv",
-            ),
-            index=False,
-        )
-
-    return equity, stats
+    return equity, stats, dfres
 
 
 class Classifier(BaseEnum):
@@ -227,10 +208,19 @@ def main():
     parser = argparse.ArgumentParser(description="AAA")
     parser.add_argument("classifier", type=Classifier, choices=list(Classifier))
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
-    parser.add_argument("days_window", type=int, help="Number of days used to calculate the thresholds (min = 50)")
-    parser.add_argument("k", type=float, default=0.0, help="Constant for threshold calculation")
+    parser.add_argument(
+        "days_window",
+        type=int,
+        help="Number of days used to calculate the thresholds (min = 50)",
+    )
+    parser.add_argument(
+        "k", type=float, default=0.0, help="Constant for threshold calculation"
+    )
     parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
+    parser.add_argument(
+        "in_dir", type=str, help="Path to folder with classification predictions"
+    )
     parser.add_argument("--seed", default=None)
     args = parser.parse_args()
 
@@ -288,13 +278,20 @@ def main():
         if args.classifier == Classifier.HE:
             # only HE
             allocations, positions, returns, dates = tl.he_trading_v3(
-                dfMinute, dfDaily, k, tradingReturn, typeOfPosition, crypto, minutes, args.days_window
+                dfMinute,
+                dfDaily,
+                k,
+                tradingReturn,
+                typeOfPosition,
+                crypto,
+                minutes,
+                args.days_window,
             )
         else:
             filename = utils.get_filename(
                 crypto, str(args.classifier), args.labels, args.seed
             )
-            dfLabels = tl.readFiles(join("data", "labels_datasets", filename))
+            dfLabels = tl.readFiles(join(args.in_dir, "labels", filename))
             if args.labels == 3:
                 # 3 labels
                 allocations, positions, returns, dates = tl.heml3_trading_v3(
@@ -306,7 +303,7 @@ def main():
                     dfLabels,
                     crypto,
                     minutes,
-                    args.days_window
+                    args.days_window,
                 )
                 # allocations, positions, returns, dates = tl.ml3_trading_v3(dfMinute,dfDaily,k,tradingReturn,typeOfPosition,dfLabels,crypto,minutes)
             elif args.labels == 2:
@@ -320,7 +317,7 @@ def main():
                     dfLabels,
                     crypto,
                     minutes,
-                    args.days_window
+                    args.days_window,
                 )
 
         # compute final results
@@ -332,34 +329,42 @@ def main():
         dfres[str(crypto) + " returns"] = returns
         dfres[str(crypto) + " positions"] = positions
 
-    final_equity, stats = compute_portfolio_statistics(
+    final_equity, stats, equity_df = compute_portfolio_statistics(
         dfres, args.classifier, args.labels, args.seed
     )
     print("Final equity:", final_equity)
 
+    utils.create_dir(join(args.in_dir, "portfolio_simulations_equity_trend"))
+    utils.create_dir(join(args.in_dir, "trading"))
+    utils.create_dir(join(args.in_dir, "portfolio_simulations_results"))
+
+    equity_filename = utils.get_equity_filename(
+        str(args.classifier), str(args.labels), args.seed
+    )
+    equity_df.to_csv(
+        join(args.in_dir, "portfolio_simulations_equity_trend", equity_filename)
+    )
+
     stats_filename = utils.get_trading_stats_filename(
         args.classifier, args.labels, args.seed
     )
-    with open(join("results", "trading", stats_filename), "w") as fp:
+    with open(join(args.in_dir, "trading", stats_filename), "w") as fp:
         json.dump(stats, fp)
 
-    results_filename = (
-        f"results_{str(args.classifier)}_{str(args.labels)}.csv"
-        if args.seed is None
-        else f"results_{str(args.classifier)}_{str(args.labels)}_{args.seed}.csv"
+    results_filename = utils.get_results_filename(
+        str(args.classifier), str(args.labels), args.seed
     )
 
     dfres.to_csv(
-        join("data", "portfolio_simulations_results", results_filename), index=False
+        join(args.in_dir, "portfolio_simulations_results", results_filename),
+        index=False,
     )
-
-    out_dir = join("results", "trading")
-    if not exists(out_dir):
-        os.makedirs(out_dir)
 
     # save also the sum on trading positions
     dfres.drop("Dates", axis=1).sum().to_csv(
-        join(out_dir, f"sum_{results_filename}"), index=True, index_label="metric"
+        join(args.in_dir, "trading", f"sum_{results_filename}"),
+        index=True,
+        index_label="metric",
     )
 
     print("END")
