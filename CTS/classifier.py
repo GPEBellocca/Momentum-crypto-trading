@@ -1,5 +1,6 @@
 from config import Classifier, Cryptocurrency, LABELS, PARAM_GRIDS, HPARAMS
 import os
+from os.path import join as j
 import pandas as pd
 import datetime as dt
 from pandas_datareader import data
@@ -53,7 +54,7 @@ def create_df_parameters(df):
     return dfres
 
 
-def get_y_3(fileName,days_window, k):
+def get_y_3(fileName, days_window, k):
 
     y = []
     dayCounter = 0
@@ -290,10 +291,15 @@ def main():
     )
     parser.add_argument("classifier", type=Classifier, choices=list(Classifier))
     parser.add_argument("labels", type=int, help="Number of labels (2 or 3)")
-    parser.add_argument("days_window", type=int, help="Number of days used to calculate the thresholds (min = 50)")
-    parser.add_argument("k", type=float, default=0.0, help="Constant for threshold calculation")
+    parser.add_argument(
+        "days_window",
+        type=int,
+        help="Number of days used to calculate the thresholds (min = 50)",
+    )
+    parser.add_argument("k", type=float, help="Constant for threshold calculation")
     parser.add_argument("start_date", type=str, help="Trading start date yyyy-mm-dd")
     parser.add_argument("end_date", type=str, help="Trading end date yyyy-mm-dd")
+    parser.add_argument("out_dir", type=str, help="Output directory")
 
     # parameters for preprocessing
     parser.add_argument("--oversampling", action="store_true")
@@ -316,6 +322,8 @@ def main():
 
     args = parser.parse_args()
 
+    if not os.path.exists(args.out_dir):
+        os.mkdir(args.out_dir)
 
     if args.days_window < 50:
         print("Error: days window minimum is 50 days")
@@ -336,9 +344,9 @@ def main():
     crypto = get_cryptocurrency(args.cryptocurrency)
 
     if args.labels == 2:
-        labels = get_y_2(FileNames[crypto],args.days_window,args.k)
+        labels = get_y_2(FileNames[crypto], args.days_window, args.k)
     elif args.labels == 3:
-        labels = get_y_3(FileNames[crypto],args.days_window,args.k)
+        labels = get_y_3(FileNames[crypto], args.days_window, args.k)
     else:
         print("Error: wrong number of labels (2 or 3 admitted)")
         return
@@ -354,7 +362,6 @@ def main():
 
     first_date = x.iloc[0, 0]
     last_date = x.iloc[x.shape[0] - 1, 0]
-
 
     if check_trading_period(x, args.start_date, args.end_date) == -1:
         print(
@@ -460,7 +467,7 @@ def main():
             y_pred = gs.predict(X_test)
             estimator = gs.best_estimator_
             print("Best setup from validation:", estimator.named_steps["clf"])
-            with open(f"best_config_{args.classifier}.txt", "a") as fp:
+            with open(j(args.out_dir, f"best_config_{args.classifier}.txt"), "a") as fp:
                 fp.write(str(estimator.named_steps["clf"]) + "\n")
 
             if args.classifier == Classifier.KNN:
@@ -501,15 +508,16 @@ def main():
     )
     print("Filename", filename)
 
-    # result.to_excel(path, index = False)
-    result.to_csv(os.path.join("data", "labels_datasets", filename), index=False)
+    if not os.path.exists(j(args.out_dir, "labels")):
+        os.mkdir(j(args.out_dir, "labels"))
 
-    out_dir = os.path.join("results", "classification")
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
+    if not os.path.exists(j(args.out_dir, "metrics")):
+        os.mkdir(j(args.out_dir, "metrics"))
+
+    result.to_csv(j(args.out_dir, "labels", filename), index=False)
 
     pd.DataFrame(class_report).to_csv(
-        os.path.join(out_dir, filename), index_label="metric"
+        j(args.out_dir, "metrics", filename), index_label="metric"
     )
 
 
