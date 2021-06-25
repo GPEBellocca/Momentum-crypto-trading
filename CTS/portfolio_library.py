@@ -71,12 +71,12 @@ def createMinuteDataset(df, start_date, end_date):
 
 
 #create the daily returns dataset
-def createDailyDataset(df, start_date, end_date):
+def createDailyDataset(df, start_date, end_date, days_window):
     dfres = pd.DataFrame()
     date = []
     dailyReturns = []
     
-    period = 0 # 1 trading period | 2 metrics calcultaion period (365 days) | 0 null
+    period = 0 # 1 trading period | 2 metrics calcultaion period (window days) | 0 null
     counter = 0
     for i in range (0,df.shape[0]):
         if df.iloc[i,0] == end_date:
@@ -91,7 +91,7 @@ def createDailyDataset(df, start_date, end_date):
         if period == 2:
             counter = counter + 1
 
-        if counter == 366:
+        if counter == days_window + 1:
             break
 
     dfres['Day'] = date

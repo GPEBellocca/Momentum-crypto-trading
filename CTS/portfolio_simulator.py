@@ -258,7 +258,7 @@ def main():
             print("Error: Trading start date < then trading end date")
             return
 
-        dfDaily = tl.createDailyDataset(df, args.start_date, args.end_date)
+        dfDaily = tl.createDailyDataset(df, args.start_date, args.end_date, args.days_window)
 
         df = tl.readFiles("./data/minute_datasets/" + str(crypto) + "USDm.csv")
         dfMinute = tl.createMinuteDataset(df, args.start_date, args.end_date)
