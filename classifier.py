@@ -322,7 +322,6 @@ def main():
 
     args = parser.parse_args()
 
-    breakpoint()
     os.makedirs(args.out_dir, exist_ok=True)
 
     if args.days_window < 50:

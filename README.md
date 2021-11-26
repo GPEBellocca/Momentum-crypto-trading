@@ -28,6 +28,23 @@ python classifier.py BTC RFC 3 2020-01-01 2020-12-31
 We include several convenience scripts to parallelize training and trading. They are located
 under `./bash`.
 
+To train all the classifier, except for LSTM, run:
+
+```bash
+./bash/train_all.sh
+```
+
+To train LSTM with window=50 and k=1, run:
+```bash
+./bash/train_LSTM.sh 50 1
+```
+
+To trade using all the generated labels, run:
+```bash
+./bash/trade_all.sh
+```
+Note that this command will spawn several parallele trading agents.
+
 ## Model configuration
 
 Models with 10 seeds:
