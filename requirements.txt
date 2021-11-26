@@ -1,0 +1,9 @@
+pandas
+ipython
+matplotlib
+pytorch-lightning
+scikit-learn
+pandas_datareader
+torchmetrics
+imbalanced-learn
+openpyxl

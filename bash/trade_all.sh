@@ -1,9 +1,9 @@
 #!/bin/bash
 
 window=50
-k=0.0
+k=1.0
 
-echo "Training all the models"
+echo "Backtest all the models"
 
 source ./bash/trading_classifier.sh KNN $window $k out_${window}_${k} &
 source ./bash/trading_classifier.sh GNB $window $k out_${window}_${k} &

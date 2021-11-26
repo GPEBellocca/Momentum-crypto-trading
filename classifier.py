@@ -322,8 +322,8 @@ def main():
 
     args = parser.parse_args()
 
-    if not os.path.exists(args.out_dir):
-        os.mkdir(args.out_dir)
+    breakpoint()
+    os.makedirs(args.out_dir, exist_ok=True)
 
     if args.days_window < 50:
         print("Error: days window minimum is 50 days")

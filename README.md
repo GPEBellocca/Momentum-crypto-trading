@@ -1,15 +1,34 @@
-# CTS
+# Momentum Effect in ML-based cryptocurrency trading
 
 ## Getting Started
 
-### Sample run
+Create a new virtual environment with Python 3.6+. E.g., using conda:
+
+```bash
+conda env create -n momentum python>=3.6
+```
+
+Install dependencies from `requirements.txt` with:
+
+```bash
+conda activate momentum
+pip install -r requirements.txt
+```
+
+## Usage
+
+Any classifier can be trained with the following syntax:
 
 ```bash
 python classifier.py BTC RFC 3 2020-01-01 2020-12-31
 ```
 
-## Model configuration
+### Convenience scripts
 
+We include several convenience scripts to parallelize training and trading. They are located
+under `./bash`.
+
+## Model configuration
 
 Models with 10 seeds:
 - LSTM
@@ -25,7 +44,7 @@ Models with a single run:
 
 Please find the configuration used for each classifier in [the configuration file](config.py).
 
-### LSTM
+**LSTM**
 
 LSTM was tested with manual tuning on the main hyper-parameters using a 10% split of
 the training sequences as validation set.
@@ -43,20 +62,18 @@ The final configuaration chosen is:
 - hidden 512
 - batch size 4096 (the whole dataset fits)
 
-### SVC
-
+**Support Vector Machine**
 - C 1
 - class_weight balanced
 - kernel poly w/ degree = 4
 - single training: 10 seconds
 
-### KNN
-
+**KNN**
 - weights uniform
 - n neighbors 3
 - algorithm ball_tree
 
-### MLP
+**Fully Connected NN**
 
 - activation tanh
 - hidden layer sizes (10, 10)
@@ -65,21 +82,17 @@ The final configuaration chosen is:
 - learning rate init 2e-5
 - tol 1e-5
 
-### RFC
-
+**Random Forest Classifier**
 - class weight balanced_subsample
 - max_depth 10
 - criterion entropy
 - min_samples_split 0.01
 - min samples leaf 0.005
 
-### LR
-
+**Logistic Regression**
 - solver liblinear
 - penalty 1
 - C l1
-
-### NB (include here Gaussian and Multinomial)
 
 MNB:
 - alpha 10
