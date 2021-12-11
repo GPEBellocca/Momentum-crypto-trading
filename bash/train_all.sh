@@ -1,7 +1,7 @@
 #!/bin/bash
 
 window=50
-k=0.0
+k=2
 
 echo "Training all the models"
 

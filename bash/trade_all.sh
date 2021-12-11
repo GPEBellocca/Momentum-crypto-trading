@@ -1,7 +1,7 @@
 #!/bin/bash
 
 window=50
-k=1.0
+k=1
 
 echo "Backtest all the models"
 
